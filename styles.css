@@ -22,21 +22,56 @@ body {
 }
 
 main {
-  max-width: 1100px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 48px 24px 96px;
+  padding: 48px 32px 96px;
 }
 
 .screen { display: none; }
 .screen.active { display: block; }
 
+#title.active.welcome,
+#consent.active.welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 144px);
+  padding-top: 0;
+}
+
 .welcome {
   text-align: center;
   padding-top: 80px;
 }
-.welcome h1 { margin-bottom: 24px; }
-.welcome .tagline { margin-left: auto; margin-right: auto; }
-.welcome > .primary { margin-top: 16px; padding: 18px 44px; font-size: 19px; height: auto; }
+.welcome h1 { font-size: 128px; margin-bottom: 48px; letter-spacing: -1px; }
+.welcome h2 { font-size: 96px; margin-bottom: 48px; }
+.welcome .tagline { font-size: 36px; max-width: 900px; margin-left: auto; margin-right: auto; margin-bottom: 48px; }
+.welcome > .primary { margin-top: 32px; padding: 32px 96px; font-size: 32px; height: auto; min-width: 320px; border-radius: 8px; }
+#consent .consent-fine { font-size: 24px; max-width: 880px; margin-bottom: 56px; line-height: 1.6; }
+#consent .consent-buttons { gap: 24px; }
+#consent .consent-buttons .primary,
+#consent .consent-buttons .secondary {
+  height: 88px;
+  min-width: 300px;
+  font-size: 26px;
+  padding: 0 48px;
+  border-radius: 8px;
+}
+
+@media (min-width: 1200px) {
+  .welcome h1 { font-size: 156px; }
+  .welcome h2 { font-size: 112px; }
+  .welcome .tagline { font-size: 40px; max-width: 1000px; }
+  .welcome > .primary { padding: 36px 112px; font-size: 36px; min-width: 360px; }
+  #consent .consent-fine { font-size: 26px; max-width: 960px; }
+  #consent .consent-buttons .primary,
+  #consent .consent-buttons .secondary {
+    height: 96px;
+    min-width: 340px;
+    font-size: 28px;
+  }
+}
 
 .consent-fine {
   max-width: 560px;
@@ -154,23 +189,23 @@ h2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 14px;
+  font-size: 18px;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 8px;
+  letter-spacing: 1.5px;
+  margin-bottom: 16px;
 }
 .prompt {
   font-family: Georgia, serif;
-  font-size: 24px;
-  margin: 0 0 24px;
+  font-size: 44px;
+  margin: 0 0 40px;
   text-align: center;
 }
 
 .pair-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 32px;
 }
 
 .pick-card {
@@ -179,8 +214,8 @@ h2 {
   text-align: left;
   background: var(--card);
   border: 2px solid var(--rule);
-  border-radius: 14px;
-  padding: 24px 22px;
+  border-radius: 18px;
+  padding: 40px 36px;
   cursor: pointer;
   font: inherit;
   color: inherit;
@@ -193,20 +228,20 @@ h2 {
 .pick-card:active { transform: translateY(1px); }
 
 .pick-label {
-  font-size: 13px;
+  font-size: 18px;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 20px;
 }
 .passage {
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 19px;
-  line-height: 1.55;
+  font-size: 26px;
+  line-height: 1.6;
   white-space: pre-wrap;
   flex-grow: 1;
-  margin-bottom: 18px;
+  margin-bottom: 28px;
 }
 .passage.poetry {
   font-style: italic;
@@ -216,10 +251,17 @@ h2 {
   align-self: flex-start;
   background: var(--ink);
   color: var(--bg);
-  padding: 10px 16px;
-  border-radius: 4px;
-  font-size: 14px;
+  padding: 16px 28px;
+  border-radius: 6px;
+  font-size: 20px;
   font-weight: 600;
+}
+
+@media (min-width: 1200px) {
+  .prompt { font-size: 52px; }
+  .passage { font-size: 30px; }
+  .pick-cta { font-size: 22px; padding: 18px 32px; }
+  .pick-label { font-size: 20px; }
 }
 .pick-card:hover .pick-cta {
   background: var(--accent);
