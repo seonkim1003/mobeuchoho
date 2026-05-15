@@ -93,6 +93,11 @@ function show(screenId) {
   document.getElementById(screenId).classList.add("active");
 }
 
+// ---------- consent ----------
+function showConsent() {
+  show("consent");
+}
+
 // ---------- title ----------
 function startQuiz() {
   state.order = shuffle(PAIRS.map((_, i) => i));
@@ -129,8 +134,7 @@ function answer(pick) {
   state.answers.push(pick); // "A" or "B"
   state.index++;
   if (state.index >= state.order.length) {
-    renderResults();
-    show("results");
+    show("video");
   } else {
     renderQuestion();
   }
@@ -196,8 +200,14 @@ function renderResults() {
 
 // ---------- wiring ----------
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("start-btn").addEventListener("click", startQuiz);
+  document.getElementById("start-btn").addEventListener("click", showConsent);
+  document.getElementById("consent-agree").addEventListener("click", startQuiz);
+  document.getElementById("consent-decline").addEventListener("click", () => show("title"));
+  document.getElementById("video-continue").addEventListener("click", () => {
+    renderResults();
+    show("results");
+  });
   document.getElementById("pick-a").addEventListener("click", () => answer("A"));
   document.getElementById("pick-b").addEventListener("click", () => answer("B"));
-  document.getElementById("retake-btn").addEventListener("click", startQuiz);
+  document.getElementById("retake-btn").addEventListener("click", () => show("title"));
 });
