@@ -1,0 +1,32 @@
+/* Section 2 — image rendering.
+ * Person 2 owns ONLY these selectors. Layout containers
+ * (.pair-grid, .pick-card, .passage without .image, .pair-side,
+ * .breakdown-item) are Person 1's territory and are styled in styles.css.
+ */
+
+/* Image inside a quiz card */
+.passage-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #f2f2f2;
+}
+
+/* Thumbnail inside a results-breakdown side */
+.side-image {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  background: #f2f2f2;
+}
+
+/* Tighten image-card on narrow screens so layout still fits */
+@media (max-width: 760px) {
+  .passage-image { aspect-ratio: 16 / 10; }
+  .side-image { max-height: 160px; }
+}
