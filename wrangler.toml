@@ -1,0 +1,37 @@
+# Cloudflare Pages project configuration.
+#
+# Binding IDs marked `TODO:` must be filled in by the account owner after
+# running the provisioning commands listed in `docs/api.md`. The function
+# runtime references these bindings as `env.DB`, `env.CACHE`, `env.AE`,
+# and `env.TURNSTILE_SECRET` — those names must match exactly.
+
+name = "english-final-project"
+compatibility_date = "2024-09-23"
+pages_build_output_dir = "."
+
+# ---------- D1 (research-grade records) ----------
+[[d1_databases]]
+binding = "DB"
+database_name = "englishproject-db"
+database_id = "TODO: fill after `wrangler d1 create englishproject-db`"
+
+# ---------- KV (stats cache + IP rate-limit counters) ----------
+[[kv_namespaces]]
+binding = "CACHE"
+id = "TODO: fill after `wrangler kv namespace create STATS_CACHE`"
+
+# ---------- Analytics Engine (aggregate event stream) ----------
+[[analytics_engine_datasets]]
+binding = "AE"
+dataset = "quiz_events"
+
+# ---------- Secrets ----------
+# TURNSTILE_SECRET is set via:
+#   wrangler pages secret put TURNSTILE_SECRET --project-name english-final-project
+# Do NOT commit the value to this file.
+
+# ---------- Optional vars ----------
+[vars]
+# Same-origin enforcement is the default; set ALLOWED_ORIGIN explicitly if
+# the frontend is deployed on a different host than the Functions runtime.
+# ALLOWED_ORIGIN = "https://example.pages.dev"
