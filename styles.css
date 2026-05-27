@@ -247,6 +247,10 @@ h2 {
   font-style: italic;
   text-align: center;
 }
+.passage.image {
+  padding: 0;
+  margin-bottom: 18px;
+}
 .pick-cta {
   align-self: flex-start;
   background: var(--ink);

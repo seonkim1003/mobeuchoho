@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AI or Human? — A Reading Quiz</title>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="image-styles.css" />
 </head>
 <body>
   <main>
@@ -34,7 +35,7 @@
         <span id="counter" class="counter">1 / 5</span>
         <span id="genre" class="genre"></span>
       </div>
-      <p class="prompt">Which one was written by AI?</p>
+      <p id="prompt-text" class="prompt">Which one was written by AI?</p>
       <div class="pair-grid">
         <button id="pick-a" class="pick-card">
           <div class="pick-label">Passage A</div>
@@ -69,6 +70,7 @@
     </section>
 
   </main>
+  <script src="image-data.js"></script>
   <script src="quiz.js"></script>
 </body>
 </html>

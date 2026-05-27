@@ -3,6 +3,7 @@
 
 const PAIRS = [
   {
+    type: "text",
     genre: "Literary fiction",
     human: {
       text:
@@ -16,6 +17,7 @@ const PAIRS = [
     }
   },
   {
+    type: "text",
     genre: "Detective fiction",
     human: {
       text:
@@ -29,6 +31,7 @@ const PAIRS = [
     }
   },
   {
+    type: "text",
     genre: "Essay / opinion",
     human: {
       text:
@@ -42,6 +45,7 @@ const PAIRS = [
     }
   },
   {
+    type: "text",
     genre: "Nature writing",
     human: {
       text:
@@ -55,6 +59,7 @@ const PAIRS = [
     }
   },
   {
+    type: "text",
     genre: "Poetry",
     isPoetry: true,
     human: {
@@ -72,10 +77,11 @@ const PAIRS = [
 
 // ---------- state ----------
 const state = {
-  order: [],        // shuffled indices into PAIRS
+  order: [],        // shuffled indices into state.allItems
   index: 0,         // current pair
   layouts: [],      // per-question: "A" side is "human" or "ai"
-  answers: []       // per-question: user's pick — "A" or "B"
+  answers: [],      // per-question: user's pick — "A" or "B"
+  allItems: []      // PAIRS concatenated with IMAGE_PAIRS (if present)
 };
 
 // ---------- helpers ----------
@@ -100,7 +106,13 @@ function showConsent() {
 
 // ---------- title ----------
 function startQuiz() {
-  state.order = shuffle(PAIRS.map((_, i) => i));
+  const imagePairs = (typeof IMAGE_PAIRS !== "undefined") ? IMAGE_PAIRS : [];
+  state.allItems = [...PAIRS, ...imagePairs];
+
+  const textIdx  = state.allItems.map((p, i) => p.type === "text"  ? i : -1).filter(i => i >= 0);
+  const imageIdx = state.allItems.map((p, i) => p.type === "image" ? i : -1).filter(i => i >= 0);
+  state.order = [...shuffle(textIdx), ...shuffle(imageIdx)];
+
   state.index = 0;
   state.answers = [];
   state.layouts = state.order.map(() => (Math.random() < 0.5 ? "human" : "ai"));
@@ -109,24 +121,47 @@ function startQuiz() {
 }
 
 // ---------- question ----------
+function renderSide(container, data, type, isPoetry) {
+  container.className = "passage";
+  container.innerHTML = "";
+  if (type === "image") {
+    container.classList.add("image");
+    const img = document.createElement("img");
+    img.className = "passage-image";
+    img.src = data.url;
+    img.alt = "";
+    container.appendChild(img);
+  } else {
+    if (isPoetry) container.classList.add("poetry");
+    container.textContent = data.text;
+  }
+}
+
 function renderQuestion() {
-  const pair = PAIRS[state.order[state.index]];
+  const pair = state.allItems[state.order[state.index]];
   const aSide = state.layouts[state.index]; // which source is on side A
 
-  document.getElementById("counter").textContent = `${state.index + 1} / ${PAIRS.length}`;
+  document.getElementById("counter").textContent = `${state.index + 1} / ${state.allItems.length}`;
   document.getElementById("genre").textContent = pair.genre;
+
+  const promptEl = document.getElementById("prompt-text");
+  if (promptEl) {
+    promptEl.textContent = pair.type === "image"
+      ? "Which one was made by AI?"
+      : "Which one was written by AI?";
+  }
 
   const aText = document.getElementById("text-a");
   const bText = document.getElementById("text-b");
   const poetry = !!pair.isPoetry;
 
-  aText.classList.toggle("poetry", poetry);
-  bText.classList.toggle("poetry", poetry);
+  const aData = aSide === "human" ? pair.human : pair.ai;
+  const bData = aSide === "human" ? pair.ai : pair.human;
 
-  aText.textContent = (aSide === "human" ? pair.human : pair.ai).text;
-  bText.textContent = (aSide === "human" ? pair.ai : pair.human).text;
+  renderSide(aText, aData, pair.type, poetry);
+  renderSide(bText, bData, pair.type, poetry);
 
-  const pct = (state.index / PAIRS.length) * 100;
+  const pct = (state.index / state.allItems.length) * 100;
   document.getElementById("progress-bar").style.width = pct + "%";
 }
 
@@ -141,6 +176,19 @@ function answer(pick) {
 }
 
 // ---------- results ----------
+function fillSideText(sideTextEl, data, type) {
+  sideTextEl.innerHTML = "";
+  if (type === "image") {
+    const img = document.createElement("img");
+    img.className = "side-image";
+    img.src = data.url;
+    img.alt = "";
+    sideTextEl.appendChild(img);
+  } else {
+    sideTextEl.textContent = data.text;
+  }
+}
+
 function renderResults() {
   let correct = 0;
   state.order.forEach((pIdx, qIdx) => {
@@ -150,13 +198,13 @@ function renderResults() {
   });
 
   document.getElementById("score").textContent =
-    `You got ${correct} / ${PAIRS.length} correct.`;
+    `You got ${correct} / ${state.allItems.length} correct.`;
 
   const list = document.getElementById("breakdown");
   list.innerHTML = "";
 
   state.order.forEach((pIdx, qIdx) => {
-    const pair = PAIRS[pIdx];
+    const pair = state.allItems[pIdx];
     const aSide = state.layouts[qIdx];
     const aiSide = aSide === "ai" ? "A" : "B";
     const userPick = state.answers[qIdx];
@@ -192,8 +240,9 @@ function renderResults() {
         <strong>You picked:</strong> Passage ${userPick} (${userPick === "A" ? aLabel : bLabel})
       </div>
     `;
-    item.querySelectorAll(".side-text")[0].textContent = aData.text;
-    item.querySelectorAll(".side-text")[1].textContent = bData.text;
+    const sideTexts = item.querySelectorAll(".side-text");
+    fillSideText(sideTexts[0], aData, pair.type);
+    fillSideText(sideTexts[1], bData, pair.type);
     list.appendChild(item);
   });
 }
