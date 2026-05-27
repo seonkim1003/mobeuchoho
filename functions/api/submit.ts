@@ -11,7 +11,9 @@
 
 interface Env {
   DB: D1Database;
-  AE: AnalyticsEngineDataset;
+  // Analytics Engine is optional — the binding is omitted when the
+  // account hasn't enabled AE yet. submit() guards every write.
+  AE?: AnalyticsEngineDataset;
   TURNSTILE_SECRET: string;
 }
 
@@ -106,15 +108,18 @@ export const onRequestPost: PagesFunction<Env> = async (ctx) => {
   }
 
   // ---- Analytics Engine: one datapoint per answer ----
+  // Optional — skipped when the AE binding isn't configured yet.
   // blobs = string dimensions (genre, ua_hint, country)
   // doubles = numeric metrics (correct=0/1, latency_ms)
   // indexes = high-cardinality lookup key (session_id, capped to 96 bytes)
-  for (const a of payload.answers) {
-    env.AE.writeDataPoint({
-      blobs: [a.pair_genre, payload.user_agent_hint, country || ""],
-      doubles: [a.correct ? 1 : 0, a.latency_ms],
-      indexes: [payload.session_id.slice(0, 96)],
-    });
+  if (env.AE) {
+    for (const a of payload.answers) {
+      env.AE.writeDataPoint({
+        blobs: [a.pair_genre, payload.user_agent_hint, country || ""],
+        doubles: [a.correct ? 1 : 0, a.latency_ms],
+        indexes: [payload.session_id.slice(0, 96)],
+      });
+    }
   }
 
   return new Response(null, { status: 204 });

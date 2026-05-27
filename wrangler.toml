@@ -13,17 +13,22 @@ pages_build_output_dir = "."
 [[d1_databases]]
 binding = "DB"
 database_name = "englishproject-db"
-database_id = "TODO: fill after `wrangler d1 create englishproject-db`"
+database_id = "853173ea-ac0f-4366-90ee-18c3e76b0e5a"
 
 # ---------- KV (stats cache + IP rate-limit counters) ----------
 [[kv_namespaces]]
 binding = "CACHE"
-id = "TODO: fill after `wrangler kv namespace create STATS_CACHE`"
+id = "8b1fe2dcfb2846fdaaa9b384b98e34a1"
 
 # ---------- Analytics Engine (aggregate event stream) ----------
-[[analytics_engine_datasets]]
-binding = "AE"
-dataset = "quiz_events"
+# DISABLED until Analytics Engine is enabled on the account at
+#   https://dash.cloudflare.com/cb65fdffd4a962486bba237fb4595848/workers/analytics-engine
+# Once enabled, uncomment the block below and redeploy. submit.ts already
+# guards `env.AE` so it's a no-op when the binding is absent.
+#
+# [[analytics_engine_datasets]]
+# binding = "AE"
+# dataset = "quiz_events"
 
 # ---------- Secrets ----------
 # TURNSTILE_SECRET is set via:
