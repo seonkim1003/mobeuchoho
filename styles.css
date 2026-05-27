@@ -80,6 +80,18 @@ main {
   font-size: 15px;
   line-height: 1.6;
 }
+.turnstile-container {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto 20px;
+  min-height: 0;
+}
+.turnstile-container:empty { display: none; }
+.primary:disabled,
+.secondary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
 .consent-buttons {
   display: flex;
   gap: 12px;

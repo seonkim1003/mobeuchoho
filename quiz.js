@@ -1,6 +1,16 @@
 // AI vs Human Text Quiz — side-by-side format
 // 5 pairs (one human + one AI per genre). User picks which side is AI.
 
+// ---------- config ----------
+// Flip MOCK_API to true during local dev when the backend isn't running.
+// When true, /api/submit is faked and /api/stats returns a canned payload.
+const MOCK_API = false;
+const SUBMIT_ENDPOINT = "/api/submit";
+
+// Cloudflare Turnstile site key. Leave empty to skip the widget locally;
+// in that case the consent "I agree" button is enabled immediately.
+const TURNSTILE_SITE_KEY = "";
+
 const PAIRS = [
   {
     type: "text",
@@ -77,12 +87,37 @@ const PAIRS = [
 
 // ---------- state ----------
 const state = {
-  order: [],        // shuffled indices into state.allItems
-  index: 0,         // current pair
-  layouts: [],      // per-question: "A" side is "human" or "ai"
-  answers: [],      // per-question: user's pick — "A" or "B"
-  allItems: []      // PAIRS concatenated with IMAGE_PAIRS (if present)
+  order: [],          // shuffled indices into state.allItems
+  index: 0,           // current pair
+  layouts: [],        // per-question: "A" side is "human" or "ai"
+  answers: [],        // per-question: user's pick — "A" or "B"
+  allItems: [],       // PAIRS concatenated with IMAGE_PAIRS (if present)
+  sessionId: null,    // uuid for this attempt
+  startedAt: 0,       // epoch ms when quiz started
+  qStartedAt: 0,      // performance.now() when current question rendered
+  telemetry: [],      // per-question payload (API contract shape)
+  turnstileToken: "", // captured from Cloudflare Turnstile when configured
+  submitted: false    // guard against double submission
 };
+
+// Turnstile widget id, set by global callback in index.html when configured.
+let turnstileWidgetId = null;
+
+// Called by the inline Turnstile <script> when the widget verifies a token.
+// Exposed on window so the Turnstile API can find it.
+function onTurnstileSuccess(token) {
+  state.turnstileToken = token || "";
+  const agree = document.getElementById("consent-agree");
+  if (agree) agree.disabled = false;
+}
+window.onTurnstileSuccess = onTurnstileSuccess;
+
+function onTurnstileExpired() {
+  state.turnstileToken = "";
+  const agree = document.getElementById("consent-agree");
+  if (agree) agree.disabled = true;
+}
+window.onTurnstileExpired = onTurnstileExpired;
 
 // ---------- helpers ----------
 function shuffle(arr) {
@@ -116,8 +151,26 @@ function startQuiz() {
   state.index = 0;
   state.answers = [];
   state.layouts = state.order.map(() => (Math.random() < 0.5 ? "human" : "ai"));
+
+  state.sessionId = makeUuid();
+  state.startedAt = Date.now();
+  state.telemetry = [];
+  state.submitted = false;
+
   renderQuestion();
   show("quiz");
+}
+
+function makeUuid() {
+  if (window.crypto && typeof window.crypto.randomUUID === "function") {
+    return window.crypto.randomUUID();
+  }
+  // RFC4122-ish fallback for older browsers.
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
 }
 
 // ---------- question ----------
@@ -163,15 +216,74 @@ function renderQuestion() {
 
   const pct = (state.index / state.allItems.length) * 100;
   document.getElementById("progress-bar").style.width = pct + "%";
+
+  state.qStartedAt = performance.now();
 }
 
 function answer(pick) {
+  const qIndex = state.index;
+  const pair = state.allItems[state.order[qIndex]];
+  const aSide = state.layouts[qIndex];
+  const aiSide = aSide === "ai" ? "A" : "B";
+  const latencyMs = Math.max(0, Math.round(performance.now() - state.qStartedAt));
+
+  state.telemetry.push({
+    q_index: qIndex,
+    pair_genre: pair.genre,
+    ai_side: aiSide,
+    user_pick: pick,
+    correct: pick === aiSide,
+    latency_ms: latencyMs
+  });
+
   state.answers.push(pick); // "A" or "B"
   state.index++;
   if (state.index >= state.order.length) {
+    submitQuizData();
     show("video");
   } else {
     renderQuestion();
+  }
+}
+
+// ---------- submit ----------
+function detectUserAgentHint() {
+  const ua = (navigator.userAgent || "").toLowerCase();
+  const isMobile = /android|iphone|ipad|ipod|mobile/.test(ua) || window.innerWidth < 760;
+  return isMobile ? "mobile" : "desktop";
+}
+
+function buildSubmitPayload() {
+  return {
+    session_id: state.sessionId,
+    started_at: state.startedAt,
+    finished_at: Date.now(),
+    user_agent_hint: detectUserAgentHint(),
+    turnstile_token: state.turnstileToken,
+    answers: state.telemetry
+  };
+}
+
+function submitQuizData() {
+  if (state.submitted) return;
+  state.submitted = true;
+
+  const payload = buildSubmitPayload();
+
+  if (MOCK_API) {
+    console.info("[MOCK_API] would POST", SUBMIT_ENDPOINT, payload);
+    return;
+  }
+
+  try {
+    fetch(SUBMIT_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      keepalive: true
+    }).catch(() => { /* swallow: never block UX on telemetry */ });
+  } catch (_) {
+    // ignore: telemetry must never break the quiz
   }
 }
 
@@ -249,8 +361,15 @@ function renderResults() {
 
 // ---------- wiring ----------
 document.addEventListener("DOMContentLoaded", () => {
+  const agreeBtn = document.getElementById("consent-agree");
+
+  // When Turnstile is enabled in production, the widget callback re-enables this.
+  if (TURNSTILE_SITE_KEY) {
+    agreeBtn.disabled = true;
+  }
+
   document.getElementById("start-btn").addEventListener("click", showConsent);
-  document.getElementById("consent-agree").addEventListener("click", startQuiz);
+  agreeBtn.addEventListener("click", startQuiz);
   document.getElementById("consent-decline").addEventListener("click", () => show("title"));
   document.getElementById("video-continue").addEventListener("click", () => {
     renderResults();

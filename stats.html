@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Quiz Results — Aggregate</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="stats.css" />
+</head>
+<body>
+  <main>
+    <section class="stats-page">
+      <header class="stats-head">
+        <h1>How Did Readers Do?</h1>
+        <p class="tagline">Aggregate results from everyone who took the quiz.</p>
+      </header>
+
+      <div id="stats-loading" class="stats-state">Loading aggregate results&hellip;</div>
+      <div id="stats-error" class="stats-state stats-error" hidden>
+        Couldn't load results right now. Please try again later.
+      </div>
+
+      <div id="stats-content" hidden>
+        <div class="stats-summary">
+          <div class="stat-card">
+            <div class="stat-label">Total sessions</div>
+            <div id="stat-sessions" class="stat-value">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Overall accuracy</div>
+            <div id="stat-accuracy" class="stat-value">—</div>
+          </div>
+        </div>
+
+        <h2>By genre</h2>
+        <ul id="stat-genres" class="stat-genres"></ul>
+
+        <p class="stat-updated">
+          Last updated: <span id="stat-updated">—</span>
+        </p>
+      </div>
+
+      <p class="stats-cta">
+        <a class="stats-link" href="index.html">Take the quiz</a>
+      </p>
+    </section>
+  </main>
+  <script src="stats.js"></script>
+</body>
+</html>

@@ -22,6 +22,10 @@
       <h2>Before you begin</h2>
       <p class="tagline">This is anonymous, but let us use your data.</p>
       <p class="consent-fine">Your responses will be used in aggregate to study how readers distinguish AI-generated writing from human writing. No personal information is collected.</p>
+      <div id="turnstile-container" class="turnstile-container"
+           data-sitekey=""
+           data-callback="onTurnstileSuccess"
+           data-expired-callback="onTurnstileExpired"></div>
       <div class="consent-buttons">
         <button id="consent-agree" class="primary">I agree</button>
         <button id="consent-decline" class="secondary">No thanks</button>
@@ -72,5 +76,33 @@
   </main>
   <script src="image-data.js"></script>
   <script src="quiz.js"></script>
+
+  <!--
+    Cloudflare Turnstile. Loads the widget into #turnstile-container.
+    The data-sitekey attribute is populated from TURNSTILE_SITE_KEY in quiz.js
+    before the script tag below is inserted. If no site key is set, the
+    widget is skipped and the "I agree" button stays enabled.
+  -->
+  <script>
+    (function () {
+      if (typeof TURNSTILE_SITE_KEY !== "string" || !TURNSTILE_SITE_KEY) return;
+      var container = document.getElementById("turnstile-container");
+      if (container) container.setAttribute("data-sitekey", TURNSTILE_SITE_KEY);
+      var s = document.createElement("script");
+      s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+      s.async = true;
+      s.defer = true;
+      document.head.appendChild(s);
+    })();
+  </script>
+
+  <!--
+    Cloudflare Web Analytics. Replace data-cf-beacon token with the one from
+    the Pages dashboard. Safe to leave commented out during local development.
+  -->
+  <!--
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+    data-cf-beacon='{"token": "REPLACE_WITH_PAGES_ANALYTICS_TOKEN"}'></script>
+  -->
 </body>
 </html>
