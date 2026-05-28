@@ -5,12 +5,16 @@
 }
 
 .stats-head h1 {
-  font-size: 56px;
+  font-size: 34px;
   margin-bottom: 8px;
   letter-spacing: -0.5px;
 }
 .stats-head .tagline {
   margin-bottom: 32px;
+}
+
+@media (min-width: 761px) {
+  .stats-head h1 { font-size: 56px; }
 }
 
 .stats-state {
@@ -270,4 +274,25 @@
 .demo-legend-acc {
   color: var(--ink);
   font-weight: 600;
+}
+
+@media (max-width: 760px) {
+  .stats-page { padding: 16px 0 40px; }
+
+  .stats-head .tagline { font-size: 17px; margin-bottom: 24px; }
+
+  .stat-value { font-size: 32px; }
+  .stat-card { padding: 16px 18px; }
+
+  .genre-meta { flex-wrap: wrap; }
+  .genre-stats { flex-wrap: wrap; white-space: normal; }
+
+  .demo-grid { grid-template-columns: 1fr; }
+  .demo-card { padding: 16px 18px; }
+
+  .demo-donut-wrap { flex-direction: column; align-items: flex-start; }
+  .demo-donut { width: 140px; height: 140px; }
+  .demo-bar-stats { white-space: normal; flex-wrap: wrap; }
+
+  .stats-link { display: block; width: 100%; max-width: 320px; margin: 0 auto; text-align: center; }
 }
