@@ -110,3 +110,164 @@
   text-decoration: none;
 }
 .stats-link:hover { opacity: 0.92; }
+
+/* ---------- demographics ---------- */
+.section-sub {
+  color: var(--muted);
+  margin: -8px 0 20px;
+  font-size: 14px;
+}
+
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.demo-card {
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  padding: 20px 22px;
+  background: #fff;
+}
+
+.demo-title {
+  font-size: 18px;
+  margin: 0 0 2px;
+  letter-spacing: -0.2px;
+}
+
+.demo-total {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 18px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.demo-empty {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0;
+}
+
+/* bar chart */
+.demo-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.demo-bar-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.demo-bar-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.demo-bar-label {
+  font-weight: 600;
+}
+
+.demo-bar-stats {
+  display: inline-flex;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.demo-bar-acc {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.demo-bar-track {
+  height: 10px;
+  background: var(--rule);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.demo-bar-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 6px;
+  transition: width 0.4s ease;
+}
+
+/* donut chart */
+.demo-donut-wrap {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.demo-donut {
+  width: 160px;
+  height: 160px;
+  flex-shrink: 0;
+}
+
+.demo-donut-center {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  fill: var(--ink);
+}
+
+.demo-legend {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 140px;
+  min-width: 140px;
+}
+
+.demo-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.demo-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.demo-legend-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.demo-legend-label {
+  font-weight: 600;
+}
+
+.demo-legend-meta {
+  display: inline-flex;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.demo-legend-acc {
+  color: var(--ink);
+  font-weight: 600;
+}

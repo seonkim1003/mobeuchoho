@@ -8,15 +8,32 @@ interface Env {
   CACHE: KVNamespace;
 }
 
-const CACHE_KEY = "stats:v1";
+const CACHE_KEY = "stats:v2";
 const CACHE_TTL_SECONDS = 60;
+
+type DemoBuckets = Record<string, { n: number; accuracy: number | null }>;
 
 interface StatsResponse {
   n_sessions: number;
   overall_accuracy: number;
   per_genre: Record<string, { n: number; accuracy: number }>;
+  demographics: {
+    age_band: DemoBuckets;
+    education: DemoBuckets;
+    native_english: DemoBuckets;
+    gender: DemoBuckets;
+    ai_familiarity: DemoBuckets;
+  };
   updated_at: number;
 }
+
+const DEMO_FIELDS = [
+  "age_band",
+  "education",
+  "native_english",
+  "gender",
+  "ai_familiarity",
+] as const;
 
 export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
   // ---- Try cache first ----
@@ -101,12 +118,51 @@ async function computeStats(db: D1Database): Promise<StatsResponse> {
     };
   }
 
+  const demographics = {
+    age_band: await aggregateDemographic(db, "age_band"),
+    education: await aggregateDemographic(db, "education"),
+    native_english: await aggregateDemographic(db, "native_english"),
+    gender: await aggregateDemographic(db, "gender"),
+    ai_familiarity: await aggregateDemographic(db, "ai_familiarity"),
+  };
+
   return {
     n_sessions: overall?.n_sessions ?? 0,
     overall_accuracy: roundTo(overall?.overall_accuracy ?? 0, 4),
     per_genre,
+    demographics,
     updated_at: Date.now(),
   };
+}
+
+// Per-demographic aggregation: for each bucket value of the given session
+// column, return the number of sessions and average correctness across their
+// answers. NULL columns (prefer-not-to-say) are bucketed as "prefer_not".
+async function aggregateDemographic(
+  db: D1Database,
+  column: (typeof DEMO_FIELDS)[number],
+): Promise<DemoBuckets> {
+  const rows = await db
+    .prepare(
+      `SELECT
+         COALESCE(s.${column}, 'prefer_not')  AS bucket,
+         COUNT(DISTINCT s.id)                 AS n,
+         AVG(CAST(a.correct AS REAL))         AS accuracy
+       FROM sessions s
+       LEFT JOIN answers a ON a.session_id = s.id
+       GROUP BY bucket
+       ORDER BY bucket`,
+    )
+    .all<{ bucket: string; n: number; accuracy: number | null }>();
+
+  const out: DemoBuckets = {};
+  for (const row of rows.results ?? []) {
+    out[row.bucket] = {
+      n: row.n,
+      accuracy: row.accuracy == null ? null : roundTo(row.accuracy, 4),
+    };
+  }
+  return out;
 }
 
 function roundTo(n: number, decimals: number): number {
