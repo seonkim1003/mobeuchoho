@@ -7,9 +7,9 @@
 const MOCK_API = false;
 const SUBMIT_ENDPOINT = "/api/submit";
 
-// Cloudflare Turnstile site key. Leave empty to skip the widget locally;
+// Cloudflare Turnstile site key. Leave empty to skip the widget entirely;
 // in that case the consent "I agree" button is enabled immediately.
-const TURNSTILE_SITE_KEY = "1x00000000000000000000AA";
+const TURNSTILE_SITE_KEY = "";
 
 const PAIRS = [
   {
@@ -106,25 +106,6 @@ const state = {
     ai_familiarity: ""
   }
 };
-
-// Turnstile widget id, set by global callback in index.html when configured.
-let turnstileWidgetId = null;
-
-// Called by the inline Turnstile <script> when the widget verifies a token.
-// Exposed on window so the Turnstile API can find it.
-function onTurnstileSuccess(token) {
-  state.turnstileToken = token || "";
-  const agree = document.getElementById("consent-agree");
-  if (agree) agree.disabled = false;
-}
-window.onTurnstileSuccess = onTurnstileSuccess;
-
-function onTurnstileExpired() {
-  state.turnstileToken = "";
-  const agree = document.getElementById("consent-agree");
-  if (agree) agree.disabled = true;
-}
-window.onTurnstileExpired = onTurnstileExpired;
 
 // ---------- helpers ----------
 function shuffle(arr) {
@@ -415,24 +396,8 @@ function renderResults() {
   });
 }
 
-function loadTurnstile() {
-  if (!TURNSTILE_SITE_KEY) return;
-  const container = document.getElementById("turnstile-container");
-  if (container) container.setAttribute("data-sitekey", TURNSTILE_SITE_KEY);
-  const s = document.createElement("script");
-  s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
-  s.async = true;
-  s.defer = true;
-  document.head.appendChild(s);
-}
-
 document.addEventListener("DOMContentLoaded", () => {
   const agreeBtn = document.getElementById("consent-agree");
-
-  if (TURNSTILE_SITE_KEY) {
-    agreeBtn.disabled = true;
-    loadTurnstile();
-  }
 
   document.getElementById("start-btn").addEventListener("click", showConsent);
   agreeBtn.addEventListener("click", onConsentAgree);

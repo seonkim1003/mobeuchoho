@@ -93,14 +93,19 @@ export const onRequestPost: PagesFunction<Env> = async (ctx) => {
   if (!parsed.ok) return jsonError(400, parsed.error);
   const payload = parsed.value;
 
-  // ---- Turnstile verification ----
-  const ip = request.headers.get("CF-Connecting-IP") || undefined;
-  const turnstileOk = await verifyTurnstile(
-    env.TURNSTILE_SECRET,
-    payload.turnstile_token,
-    ip,
-  );
-  if (!turnstileOk) return jsonError(403, "turnstile_failed");
+  // ---- Turnstile verification (skipped when no token is supplied) ----
+  // The frontend stopped rendering the Turnstile widget, so payloads will
+  // arrive without a token. We still verify when a token IS sent so the
+  // widget can be re-enabled later by simply restoring the frontend code.
+  if (payload.turnstile_token) {
+    const ip = request.headers.get("CF-Connecting-IP") || undefined;
+    const turnstileOk = await verifyTurnstile(
+      env.TURNSTILE_SECRET,
+      payload.turnstile_token,
+      ip,
+    );
+    if (!turnstileOk) return jsonError(403, "turnstile_failed");
+  }
 
   // ---- D1 insert (batched for atomic-ish semantics) ----
   const country = request.headers.get("CF-IPCountry") || null;
@@ -195,9 +200,8 @@ function validatePayload(body: unknown): Result<Payload> {
   if (user_agent_hint !== "mobile" && user_agent_hint !== "desktop")
     return { ok: false, error: "bad_user_agent_hint" };
 
-  const turnstile_token = body.turnstile_token;
-  if (typeof turnstile_token !== "string" || turnstile_token.length === 0)
-    return { ok: false, error: "missing_turnstile_token" };
+  const turnstile_token =
+    typeof body.turnstile_token === "string" ? body.turnstile_token : "";
   if (turnstile_token.length > 4096)
     return { ok: false, error: "turnstile_token_too_long" };
 
