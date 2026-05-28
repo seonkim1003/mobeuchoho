@@ -27,7 +27,7 @@ dataset = "quiz_scores"
 
 # ---------- Secrets ----------
 # TURNSTILE_SECRET is set via:
-#   wrangler pages secret put TURNSTILE_SECRET --project-name english-final-project
+#   wrangler pages secret put TURNSTILE_SECRET --project-name mobeuchoho
 # Do NOT commit the value to this file.
 
 # ---------- Optional vars ----------

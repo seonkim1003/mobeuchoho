@@ -177,7 +177,7 @@ wrangler pages secret put TURNSTILE_SECRET --project-name mobeuchoho
 # → paste secret when prompted
 
 # 6. Optional cross-origin allowlist
-wrangler pages secret put ALLOWED_ORIGIN --project-name english-final-project
+wrangler pages secret put ALLOWED_ORIGIN --project-name mobeuchoho
 # → only needed if frontend is on a different host than the Functions runtime
 ```
 
@@ -197,7 +197,7 @@ wrangler pages deploy . --project-name mobeuchoho
 |---|---|
 | Valid payload + valid token | 204 |
 | Missing `turnstile_token` | 400 `missing_turnstile_token` |
-| `answers.length !== 5` | 400 `bad_answers_length` |
+| `answers.length !== 10` | 400 `bad_answers_length` |
 | `correct` doesn't match `user_pick === ai_side` | 400 `correct_mismatch` |
 | Bad Turnstile token | 403 `turnstile_failed` |
 | 11th POST in the same hour from one IP | 429 `rate_limited` |
@@ -210,7 +210,7 @@ wrangler d1 execute englishproject-db --remote \
   --command "SELECT COUNT(*) AS s FROM sessions; SELECT COUNT(*) AS a FROM answers;"
 ```
 
-`a` should be `5 * s` if every session inserted cleanly.
+`a` should be `10 * s` if every session inserted cleanly.
 
 ### Stats verification
 

@@ -415,13 +415,23 @@ function renderResults() {
   });
 }
 
-// ---------- wiring ----------
+function loadTurnstile() {
+  if (!TURNSTILE_SITE_KEY) return;
+  const container = document.getElementById("turnstile-container");
+  if (container) container.setAttribute("data-sitekey", TURNSTILE_SITE_KEY);
+  const s = document.createElement("script");
+  s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+  s.async = true;
+  s.defer = true;
+  document.head.appendChild(s);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const agreeBtn = document.getElementById("consent-agree");
 
-  // When Turnstile is enabled in production, the widget callback re-enables this.
   if (TURNSTILE_SITE_KEY) {
     agreeBtn.disabled = true;
+    loadTurnstile();
   }
 
   document.getElementById("start-btn").addEventListener("click", showConsent);
