@@ -97,7 +97,14 @@ const state = {
   qStartedAt: 0,      // performance.now() when current question rendered
   telemetry: [],      // per-question payload (API contract shape)
   turnstileToken: "", // captured from Cloudflare Turnstile when configured
-  submitted: false    // guard against double submission
+  submitted: false,   // guard against double submission
+  demographics: {
+    age_band: "",
+    education: "",
+    native_english: "",
+    gender: "",
+    ai_familiarity: ""
+  }
 };
 
 // Turnstile widget id, set by global callback in index.html when configured.
@@ -152,8 +159,6 @@ function startQuiz() {
   state.answers = [];
   state.layouts = state.order.map(() => (Math.random() < 0.5 ? "human" : "ai"));
 
-  state.sessionId = makeUuid();
-  state.startedAt = Date.now();
   state.telemetry = [];
   state.submitted = false;
 
@@ -253,6 +258,56 @@ function detectUserAgentHint() {
   return isMobile ? "mobile" : "desktop";
 }
 
+const DEMO_FIELDS = [
+  "age_band",
+  "education",
+  "native_english",
+  "gender",
+  "ai_familiarity"
+];
+
+function readDemographics() {
+  const out = {};
+  for (const field of DEMO_FIELDS) {
+    const el = document.querySelector(`input[name="${field}"]:checked`);
+    out[field] = el ? el.value : "";
+  }
+  return out;
+}
+
+function demographicsComplete(demo) {
+  return DEMO_FIELDS.every(f => demo[f] !== "");
+}
+
+function demographicsForApi(demo) {
+  const out = {};
+  for (const field of DEMO_FIELDS) {
+    const v = demo[field];
+    out[field] = v === "prefer_not" || v === "" ? null : v;
+  }
+  return out;
+}
+
+function updateDemoStartButton() {
+  const btn = document.getElementById("demo-start");
+  if (!btn) return;
+  btn.disabled = !demographicsComplete(readDemographics());
+}
+
+function onConsentAgree() {
+  state.sessionId = makeUuid();
+  show("demographics");
+}
+
+function onDemographicsSubmit(e) {
+  e.preventDefault();
+  const demo = readDemographics();
+  if (!demographicsComplete(demo)) return;
+  state.demographics = demo;
+  state.startedAt = Date.now();
+  startQuiz();
+}
+
 function buildSubmitPayload() {
   return {
     session_id: state.sessionId,
@@ -260,6 +315,7 @@ function buildSubmitPayload() {
     finished_at: Date.now(),
     user_agent_hint: detectUserAgentHint(),
     turnstile_token: state.turnstileToken,
+    demographics: demographicsForApi(state.demographics),
     answers: state.telemetry
   };
 }
@@ -369,8 +425,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   document.getElementById("start-btn").addEventListener("click", showConsent);
-  agreeBtn.addEventListener("click", startQuiz);
+  agreeBtn.addEventListener("click", onConsentAgree);
   document.getElementById("consent-decline").addEventListener("click", () => show("title"));
+
+  const demoForm = document.getElementById("demo-form");
+  if (demoForm) {
+    demoForm.addEventListener("submit", onDemographicsSubmit);
+    demoForm.addEventListener("change", updateDemoStartButton);
+  }
   document.getElementById("video-continue").addEventListener("click", () => {
     renderResults();
     show("results");

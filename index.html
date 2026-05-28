@@ -32,6 +32,67 @@
       </div>
     </section>
 
+    <!-- demographics -->
+    <section id="demographics" class="screen welcome">
+      <h2>A few quick questions</h2>
+      <p class="tagline">All fields are required. Choose &ldquo;Prefer not to say&rdquo; if you prefer.</p>
+      <form id="demo-form" class="demo-form" novalidate>
+        <fieldset class="demo-field">
+          <legend>Age</legend>
+          <div class="demo-options">
+            <label><input type="radio" name="age_band" value="under_18" required /> Under 18</label>
+            <label><input type="radio" name="age_band" value="18_24" /> 18–24</label>
+            <label><input type="radio" name="age_band" value="25_34" /> 25–34</label>
+            <label><input type="radio" name="age_band" value="35_44" /> 35–44</label>
+            <label><input type="radio" name="age_band" value="45_54" /> 45–54</label>
+            <label><input type="radio" name="age_band" value="55_64" /> 55–64</label>
+            <label><input type="radio" name="age_band" value="65_plus" /> 65+</label>
+            <label><input type="radio" name="age_band" value="prefer_not" /> Prefer not to say</label>
+          </div>
+        </fieldset>
+        <fieldset class="demo-field">
+          <legend>Education</legend>
+          <div class="demo-options">
+            <label><input type="radio" name="education" value="less_than_hs" required /> Less than high school</label>
+            <label><input type="radio" name="education" value="hs" /> High school</label>
+            <label><input type="radio" name="education" value="some_college" /> Some college</label>
+            <label><input type="radio" name="education" value="bachelors" /> Bachelor&rsquo;s</label>
+            <label><input type="radio" name="education" value="masters" /> Master&rsquo;s</label>
+            <label><input type="radio" name="education" value="doctorate" /> Doctorate</label>
+            <label><input type="radio" name="education" value="prefer_not" /> Prefer not to say</label>
+          </div>
+        </fieldset>
+        <fieldset class="demo-field">
+          <legend>Is English your native language?</legend>
+          <div class="demo-options">
+            <label><input type="radio" name="native_english" value="yes" required /> Yes</label>
+            <label><input type="radio" name="native_english" value="no" /> No</label>
+            <label><input type="radio" name="native_english" value="prefer_not" /> Prefer not to say</label>
+          </div>
+        </fieldset>
+        <fieldset class="demo-field">
+          <legend>Gender</legend>
+          <div class="demo-options">
+            <label><input type="radio" name="gender" value="female" required /> Female</label>
+            <label><input type="radio" name="gender" value="male" /> Male</label>
+            <label><input type="radio" name="gender" value="non_binary" /> Non-binary</label>
+            <label><input type="radio" name="gender" value="self_describe" /> Self-describe</label>
+            <label><input type="radio" name="gender" value="prefer_not" /> Prefer not to say</label>
+          </div>
+        </fieldset>
+        <fieldset class="demo-field">
+          <legend>How often do you use AI tools?</legend>
+          <div class="demo-options">
+            <label><input type="radio" name="ai_familiarity" value="never" required /> Never</label>
+            <label><input type="radio" name="ai_familiarity" value="sometimes" /> Sometimes</label>
+            <label><input type="radio" name="ai_familiarity" value="daily" /> Daily</label>
+            <label><input type="radio" name="ai_familiarity" value="prefer_not" /> Prefer not to say</label>
+          </div>
+        </fieldset>
+        <button type="submit" id="demo-start" class="primary" disabled>Start quiz</button>
+      </form>
+    </section>
+
     <!-- quiz -->
     <section id="quiz" class="screen">
       <div class="progress"><div id="progress-bar" class="progress-bar"></div></div>

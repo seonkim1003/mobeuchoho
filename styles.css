@@ -347,6 +347,93 @@ h2 {
   font-size: 15px;
 }
 
+/* ---------- demographics ---------- */
+#demographics.active.welcome {
+  display: block;
+  min-height: calc(100vh - 80px);
+  padding-top: 24px;
+  text-align: left;
+}
+
+#demographics h2 {
+  text-align: center;
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+#demographics .tagline {
+  text-align: center;
+  font-size: 18px;
+  max-width: 640px;
+  margin: 0 auto 28px;
+  color: var(--muted);
+}
+
+.demo-form {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.demo-field {
+  border: none;
+  margin: 0 0 24px;
+  padding: 0;
+}
+
+.demo-field legend {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  padding: 0;
+}
+
+.demo-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.demo-options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  padding: 8px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  cursor: pointer;
+  background: var(--card);
+}
+
+.demo-options label:has(input:checked) {
+  border-color: var(--accent);
+  background: #f5f5f5;
+}
+
+.demo-options input {
+  margin: 0;
+}
+
+#demo-start {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  margin: 8px auto 0;
+  padding: 16px 32px;
+  font-size: 18px;
+}
+
+#demo-start:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 760px) {
+  #demographics h2 { font-size: 32px; }
+  .demo-options { flex-direction: column; }
+  .demo-options label { width: 100%; }
+}
+
 /* ---------- mobile ---------- */
 @media (max-width: 760px) {
   main { padding: 28px 16px 64px; }

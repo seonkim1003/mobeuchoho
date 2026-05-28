@@ -1,9 +1,9 @@
 // POST /api/submit — accept a completed quiz session.
 //
 // Flow:
-//   1. Validate payload structure (strict shape, 5 answers, A/B sides).
+//   1. Validate payload structure (strict shape, 10 answers, A/B sides).
 //   2. Verify Turnstile token with Cloudflare siteverify.
-//   3. Insert one row into `sessions` and 5 rows into `answers` (batched).
+//   3. Insert one row into `sessions` and 10 rows into `answers` (batched).
 //   4. Emit one Analytics Engine datapoint per answer.
 //   5. Return 204 No Content on success.
 //
@@ -20,7 +20,44 @@ interface Env {
 const TURNSTILE_VERIFY_URL =
   "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
-const EXPECTED_ANSWERS_LEN = 5;
+const EXPECTED_ANSWERS_LEN = 10;
+
+const AGE_BANDS = new Set([
+  "under_18",
+  "18_24",
+  "25_34",
+  "35_44",
+  "45_54",
+  "55_64",
+  "65_plus",
+  "prefer_not",
+]);
+const EDUCATION_LEVELS = new Set([
+  "less_than_hs",
+  "hs",
+  "some_college",
+  "bachelors",
+  "masters",
+  "doctorate",
+  "prefer_not",
+]);
+const NATIVE_ENGLISH = new Set(["yes", "no", "prefer_not"]);
+const GENDERS = new Set([
+  "female",
+  "male",
+  "non_binary",
+  "self_describe",
+  "prefer_not",
+]);
+const AI_FAMILIARITY = new Set(["never", "sometimes", "daily", "prefer_not"]);
+
+interface Demographics {
+  age_band: string | null;
+  education: string | null;
+  native_english: string | null;
+  gender: string | null;
+  ai_familiarity: string | null;
+}
 
 interface Answer {
   q_index: number;
@@ -37,6 +74,7 @@ interface Payload {
   finished_at: number;
   user_agent_hint: "mobile" | "desktop";
   turnstile_token: string;
+  demographics: Demographics;
   answers: Answer[];
 }
 
@@ -73,8 +111,9 @@ export const onRequestPost: PagesFunction<Env> = async (ctx) => {
   // a 500. We still want the answers to be insert-only (no duplicates).
   const sessionStmt = env.DB.prepare(
     `INSERT OR IGNORE INTO sessions
-     (id, started_at, finished_at, ua_hint, country, created_at)
-     VALUES (?, ?, ?, ?, ?, ?)`,
+     (id, started_at, finished_at, ua_hint, country, created_at,
+      age_band, education, native_english, gender, ai_familiarity)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).bind(
     payload.session_id,
     payload.started_at,
@@ -82,6 +121,11 @@ export const onRequestPost: PagesFunction<Env> = async (ctx) => {
     payload.user_agent_hint,
     country,
     createdAt,
+    payload.demographics.age_band,
+    payload.demographics.education,
+    payload.demographics.native_english,
+    payload.demographics.gender,
+    payload.demographics.ai_familiarity,
   );
 
   const answerStmts = payload.answers.map((a) =>
@@ -157,6 +201,9 @@ function validatePayload(body: unknown): Result<Payload> {
   if (turnstile_token.length > 4096)
     return { ok: false, error: "turnstile_token_too_long" };
 
+  const demographicsParsed = validateDemographics(body.demographics);
+  if (!demographicsParsed.ok) return demographicsParsed;
+
   const answers = body.answers;
   if (!Array.isArray(answers) || answers.length !== EXPECTED_ANSWERS_LEN)
     return { ok: false, error: "bad_answers_length" };
@@ -214,9 +261,62 @@ function validatePayload(body: unknown): Result<Payload> {
       finished_at,
       user_agent_hint,
       turnstile_token,
+      demographics: demographicsParsed.value,
       answers: validatedAnswers,
     },
   };
+}
+
+function validateDemographics(raw: unknown): Result<Demographics> {
+  if (!isObject(raw)) return { ok: false, error: "bad_demographics" };
+
+  const requiredKeys = [
+    "age_band",
+    "education",
+    "native_english",
+    "gender",
+    "ai_familiarity",
+  ] as const;
+  for (const key of requiredKeys) {
+    if (!(key in raw)) return { ok: false, error: "bad_demographics" };
+  }
+
+  const age_band = normalizeDemoField(raw.age_band, AGE_BANDS);
+  if (age_band === false) return { ok: false, error: "bad_age_band" };
+
+  const education = normalizeDemoField(raw.education, EDUCATION_LEVELS);
+  if (education === false) return { ok: false, error: "bad_education" };
+
+  const native_english = normalizeDemoField(raw.native_english, NATIVE_ENGLISH);
+  if (native_english === false) return { ok: false, error: "bad_native_english" };
+
+  const gender = normalizeDemoField(raw.gender, GENDERS);
+  if (gender === false) return { ok: false, error: "bad_gender" };
+
+  const ai_familiarity = normalizeDemoField(raw.ai_familiarity, AI_FAMILIARITY);
+  if (ai_familiarity === false) return { ok: false, error: "bad_ai_familiarity" };
+
+  return {
+    ok: true,
+    value: {
+      age_band,
+      education,
+      native_english,
+      gender,
+      ai_familiarity,
+    },
+  };
+}
+
+/** Map prefer_not and empty string to null; reject unknown values. */
+function normalizeDemoField(
+  v: unknown,
+  allowed: Set<string>,
+): string | null | false {
+  if (v === null || v === undefined || v === "") return null;
+  if (typeof v !== "string" || !allowed.has(v)) return false;
+  if (v === "prefer_not") return null;
+  return v;
 }
 
 async function verifyTurnstile(

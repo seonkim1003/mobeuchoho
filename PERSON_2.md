@@ -198,3 +198,4 @@ Write `docs/api.md` as the canonical backend reference:
 - [ ] Middleware rate limits submit route correctly.
 - [ ] `docs/api.md` is complete and usable by frontend owner.
 - [ ] No edits made to frontend-owned files.
+- [x] Demographics columns added via `migrations/0002_demographics.sql` and accepted by `/api/submit`.

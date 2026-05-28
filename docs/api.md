@@ -36,6 +36,13 @@ Submit a completed quiz session. Idempotent on `session_id` (a duplicate POST is
   "finished_at": 1748370180000,
   "user_agent_hint": "desktop",
   "turnstile_token": "0.cQ8...",
+  "demographics": {
+    "age_band": "25_34",
+    "education": "bachelors",
+    "native_english": "yes",
+    "gender": null,
+    "ai_familiarity": "sometimes"
+  },
   "answers": [
     {
       "q_index": 0,
@@ -57,8 +64,14 @@ Submit a completed quiz session. Idempotent on `session_id` (a duplicate POST is
 | `started_at`, `finished_at` | Finite integer epoch ms; `finished_at >= started_at`. |
 | `user_agent_hint` | Exactly `"mobile"` or `"desktop"`. |
 | `turnstile_token` | Non-empty string, ≤ 4096 chars. |
-| `answers` | Array of exactly **5** answer objects. |
-| `q_index` | Integer in `[0, 5)`, unique within payload. |
+| `demographics` | Required object with keys `age_band`, `education`, `native_english`, `gender`, `ai_familiarity`. Each value is `null` (prefer not to say) or one of the allowed enum strings below. |
+| `demographics.age_band` | `null` or: `under_18`, `18_24`, `25_34`, `35_44`, `45_54`, `55_64`, `65_plus`. |
+| `demographics.education` | `null` or: `less_than_hs`, `hs`, `some_college`, `bachelors`, `masters`, `doctorate`. |
+| `demographics.native_english` | `null` or: `yes`, `no`. |
+| `demographics.gender` | `null` or: `female`, `male`, `non_binary`, `self_describe`. |
+| `demographics.ai_familiarity` | `null` or: `never`, `sometimes`, `daily`. |
+| `answers` | Array of exactly **10** answer objects (5 text + 5 image). |
+| `q_index` | Integer in `[0, 10)`, unique within payload. |
 | `pair_genre` | Non-empty string, ≤ 64 chars. |
 | `ai_side`, `user_pick` | Exactly `"A"` or `"B"`. |
 | `correct` | Boolean. Must equal `user_pick === ai_side`. |
@@ -69,7 +82,7 @@ Submit a completed quiz session. Idempotent on `session_id` (a duplicate POST is
 | Status | Body | When |
 |---|---|---|
 | `204 No Content` | empty | Validation, Turnstile, and DB write all succeeded. |
-| `400 Bad Request` | `{"error": "<code>"}` | Payload validation failed. Codes: `invalid_json`, `payload_not_object`, `bad_session_id`, `bad_timestamp`, `finished_before_started`, `bad_user_agent_hint`, `missing_turnstile_token`, `turnstile_token_too_long`, `bad_answers_length`, `answer_not_object`, `bad_q_index`, `duplicate_q_index`, `bad_pair_genre`, `pair_genre_too_long`, `bad_ai_side`, `bad_user_pick`, `bad_correct`, `correct_mismatch`, `bad_latency_ms`. |
+| `400 Bad Request` | `{"error": "<code>"}` | Payload validation failed. Codes: `invalid_json`, `payload_not_object`, `bad_session_id`, `bad_timestamp`, `finished_before_started`, `bad_user_agent_hint`, `missing_turnstile_token`, `turnstile_token_too_long`, `bad_demographics`, `bad_age_band`, `bad_education`, `bad_native_english`, `bad_gender`, `bad_ai_familiarity`, `bad_answers_length`, `answer_not_object`, `bad_q_index`, `duplicate_q_index`, `bad_pair_genre`, `pair_genre_too_long`, `bad_ai_side`, `bad_user_pick`, `bad_correct`, `correct_mismatch`, `bad_latency_ms`. |
 | `403 Forbidden` | `{"error": "turnstile_failed"}` or `{"error": "origin_not_allowed"}` | Turnstile siteverify rejected the token, or the `Origin` header is cross-origin and not whitelisted. |
 | `405 Method Not Allowed` | `{"error": "method_not_allowed"}` | Method other than POST. `Allow: POST`. |
 | `429 Too Many Requests` | `{"error": "rate_limited"}` | More than 10 submissions in the current hour from this IP. `Retry-After` header set. |
@@ -147,6 +160,7 @@ wrangler d1 create englishproject-db
 
 # 2. Apply schema (remote = production D1)
 wrangler d1 execute englishproject-db --file=migrations/0001_init.sql --remote
+wrangler d1 execute englishproject-db --file=migrations/0002_demographics.sql --remote
 
 # 3. KV namespace (used for stats cache + rate-limit counters)
 wrangler kv namespace create STATS_CACHE
@@ -159,7 +173,7 @@ wrangler kv namespace create STATS_CACHE
 # 5. Turnstile site key + secret
 #    Create a Turnstile site at https://dash.cloudflare.com/?to=/:account/turnstile
 #    Frontend uses the site key (public). Backend uses the secret:
-wrangler pages secret put TURNSTILE_SECRET --project-name english-final-project
+wrangler pages secret put TURNSTILE_SECRET --project-name mobeuchoho
 # → paste secret when prompted
 
 # 6. Optional cross-origin allowlist
@@ -170,7 +184,7 @@ wrangler pages secret put ALLOWED_ORIGIN --project-name english-final-project
 After provisioning, deploy:
 
 ```sh
-wrangler pages deploy . --project-name english-final-project
+wrangler pages deploy . --project-name mobeuchoho
 ```
 
 ---
