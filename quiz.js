@@ -9,7 +9,7 @@ const SUBMIT_ENDPOINT = "/api/submit";
 
 // Cloudflare Turnstile site key. Leave empty to skip the widget locally;
 // in that case the consent "I agree" button is enabled immediately.
-const TURNSTILE_SITE_KEY = "";
+const TURNSTILE_SITE_KEY = "1x00000000000000000000AA";
 
 const PAIRS = [
   {

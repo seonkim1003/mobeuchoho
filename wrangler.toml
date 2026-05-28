@@ -5,7 +5,7 @@
 # runtime references these bindings as `env.DB`, `env.CACHE`, `env.AE`,
 # and `env.TURNSTILE_SECRET` — those names must match exactly.
 
-name = "english-final-project"
+name = "mobeuchoho"
 compatibility_date = "2024-09-23"
 pages_build_output_dir = "."
 
@@ -21,14 +21,9 @@ binding = "CACHE"
 id = "8b1fe2dcfb2846fdaaa9b384b98e34a1"
 
 # ---------- Analytics Engine (aggregate event stream) ----------
-# DISABLED until Analytics Engine is enabled on the account at
-#   https://dash.cloudflare.com/cb65fdffd4a962486bba237fb4595848/workers/analytics-engine
-# Once enabled, uncomment the block below and redeploy. submit.ts already
-# guards `env.AE` so it's a no-op when the binding is absent.
-#
-# [[analytics_engine_datasets]]
-# binding = "AE"
-# dataset = "quiz_events"
+[[analytics_engine_datasets]]
+binding = "AE"
+dataset = "quiz_scores"
 
 # ---------- Secrets ----------
 # TURNSTILE_SECRET is set via:
