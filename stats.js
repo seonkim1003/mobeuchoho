@@ -125,8 +125,7 @@ function renderStats(data) {
     `;
     li.querySelector(".genre-name").textContent = name;
     li.querySelector(".genre-acc").textContent = formatPct(row.accuracy);
-    li.querySelector(".genre-n").textContent =
-      typeof row.n === "number" ? `n=${row.n.toLocaleString()}` : "";
+    li.querySelector(".genre-n").textContent = "";
     li.querySelector(".genre-bar-fill").style.width =
       Math.max(0, Math.min(1, pct)) * 100 + "%";
     list.appendChild(li);
