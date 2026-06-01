@@ -449,6 +449,96 @@ h2 {
   cursor: not-allowed;
 }
 
+/* ---------- results actions ---------- */
+.results-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+/* ---------- post-survey ---------- */
+#post-survey {
+  max-width: 720px;
+}
+
+.survey-form {
+  max-width: 720px;
+}
+
+.survey-field {
+  border: none;
+  margin: 0 0 28px;
+  padding: 0;
+}
+
+.survey-field legend {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  padding: 0;
+}
+
+.survey-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.survey-options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  padding: 8px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  cursor: pointer;
+  background: var(--card);
+}
+
+.survey-options label:has(input:checked) {
+  border-color: var(--accent);
+  background: #f5f5f5;
+}
+
+.survey-options input { margin: 0; }
+
+/* star rating */
+.star-rating {
+  display: flex;
+  gap: 4px;
+  font-size: 36px;
+}
+
+.star-rating input { display: none; }
+
+.star-rating label {
+  color: var(--rule);
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.1s;
+}
+
+.star-rating label:hover,
+.star-rating input:checked ~ label {
+  color: #f59e0b;
+}
+
+/* fill all stars up to hovered/checked using JS class */
+.star-rating.s1 label:nth-child(-n+2),
+.star-rating.s2 label:nth-child(-n+4),
+.star-rating.s3 label:nth-child(-n+6),
+.star-rating.s4 label:nth-child(-n+8),
+.star-rating.s5 label:nth-child(-n+10) { color: #f59e0b; }
+
+.survey-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
 /* ---------- mobile ---------- */
 @media (max-width: 760px) {
   main { padding: 28px 16px 64px; }

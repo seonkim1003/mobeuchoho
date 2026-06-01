@@ -127,7 +127,62 @@
     <section id="results" class="screen">
       <h2 id="score"></h2>
       <ul id="breakdown" class="breakdown"></ul>
-      <button id="retake-btn" class="primary">Take it again</button>
+      <div class="results-actions">
+        <button id="feedback-btn" class="primary">Share your feedback</button>
+        <button id="retake-btn" class="secondary">Skip &amp; retake</button>
+      </div>
+    </section>
+
+    <!-- post-survey -->
+    <section id="post-survey" class="screen">
+      <h2>One last thing</h2>
+      <p class="tagline">Tell us about your experience.</p>
+      <form id="survey-form" class="survey-form" novalidate>
+
+        <fieldset class="survey-field">
+          <legend>Did this quiz teach you something new?</legend>
+          <div class="survey-options">
+            <label><input type="radio" name="learned" value="yes" required /> Yes</label>
+            <label><input type="radio" name="learned" value="somewhat" /> Somewhat</label>
+            <label><input type="radio" name="learned" value="no" /> No</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="survey-field">
+          <legend>How useful was the information presented?</legend>
+          <div class="survey-options">
+            <label><input type="radio" name="useful" value="very" required /> Very useful</label>
+            <label><input type="radio" name="useful" value="somewhat" /> Somewhat useful</label>
+            <label><input type="radio" name="useful" value="not" /> Not useful</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="survey-field">
+          <legend>Overall rating</legend>
+          <div class="star-rating">
+            <input type="radio" name="rating" value="1" id="star1" required /><label for="star1" title="1">★</label>
+            <input type="radio" name="rating" value="2" id="star2" /><label for="star2" title="2">★</label>
+            <input type="radio" name="rating" value="3" id="star3" /><label for="star3" title="3">★</label>
+            <input type="radio" name="rating" value="4" id="star4" /><label for="star4" title="4">★</label>
+            <input type="radio" name="rating" value="5" id="star5" /><label for="star5" title="5">★</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="survey-field">
+          <legend>How has your confidence in spotting AI content changed?</legend>
+          <div class="survey-options">
+            <label><input type="radio" name="confidence" value="much_more" required /> Much more confident</label>
+            <label><input type="radio" name="confidence" value="somewhat_more" /> Somewhat more confident</label>
+            <label><input type="radio" name="confidence" value="same" /> About the same</label>
+            <label><input type="radio" name="confidence" value="less" /> Less confident</label>
+          </div>
+        </fieldset>
+
+        <div class="survey-actions">
+          <button type="submit" id="survey-submit" class="primary" disabled>Submit feedback</button>
+          <button type="button" id="survey-skip" class="secondary">Skip</button>
+        </div>
+      </form>
     </section>
 
   </main>

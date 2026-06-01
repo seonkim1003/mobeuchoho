@@ -104,7 +104,8 @@ const state = {
     native_english: "",
     gender: "",
     ai_familiarity: ""
-  }
+  },
+  postSurvey: null    // filled when user completes or skips post-survey
 };
 
 // ---------- helpers ----------
@@ -142,6 +143,15 @@ function startQuiz() {
 
   state.telemetry = [];
   state.submitted = false;
+  state.postSurvey = null;
+
+  // reset survey form for next attempt
+  const surveyForm = document.getElementById("survey-form");
+  if (surveyForm) {
+    surveyForm.reset();
+    updateSurveySubmitButton();
+    updateStarDisplay();
+  }
 
   renderQuestion();
   show("quiz");
@@ -225,8 +235,7 @@ function answer(pick) {
   state.answers.push(pick); // "A" or "B"
   state.index++;
   if (state.index >= state.order.length) {
-    submitQuizData();
-    show("video");
+    show("video"); // submission happens after post-survey
   } else {
     renderQuestion();
   }
@@ -297,8 +306,39 @@ function buildSubmitPayload() {
     user_agent_hint: detectUserAgentHint(),
     turnstile_token: state.turnstileToken,
     demographics: demographicsForApi(state.demographics),
-    answers: state.telemetry
+    answers: state.telemetry,
+    post_survey: state.postSurvey
   };
+}
+
+// ---------- post-survey ----------
+function readSurvey() {
+  const field = name => {
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : "";
+  };
+  return {
+    learned:    field("learned"),
+    useful:     field("useful"),
+    rating:     field("rating"),
+    confidence: field("confidence")
+  };
+}
+
+function surveyComplete(s) {
+  return s.learned && s.useful && s.rating && s.confidence;
+}
+
+function updateSurveySubmitButton() {
+  const btn = document.getElementById("survey-submit");
+  if (btn) btn.disabled = !surveyComplete(readSurvey());
+}
+
+function updateStarDisplay() {
+  const checked = document.querySelector('input[name="rating"]:checked');
+  const group = document.querySelector(".star-rating");
+  if (!group) return;
+  group.className = "star-rating" + (checked ? " s" + checked.value : "");
 }
 
 function submitQuizData() {
@@ -414,5 +454,30 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   document.getElementById("pick-a").addEventListener("click", () => answer("A"));
   document.getElementById("pick-b").addEventListener("click", () => answer("B"));
-  document.getElementById("retake-btn").addEventListener("click", () => show("title"));
+
+  // results screen
+  document.getElementById("feedback-btn").addEventListener("click", () => show("post-survey"));
+  document.getElementById("retake-btn").addEventListener("click", () => {
+    state.postSurvey = null;
+    submitQuizData();
+    show("title");
+  });
+
+  // post-survey
+  const surveyForm = document.getElementById("survey-form");
+  surveyForm.addEventListener("change", () => {
+    updateSurveySubmitButton();
+    updateStarDisplay();
+  });
+  surveyForm.addEventListener("submit", e => {
+    e.preventDefault();
+    state.postSurvey = readSurvey();
+    submitQuizData();
+    show("title");
+  });
+  document.getElementById("survey-skip").addEventListener("click", () => {
+    state.postSurvey = null;
+    submitQuizData();
+    show("title");
+  });
 });
