@@ -16,11 +16,19 @@ Then publish with:       (cd gas && clasp push)
 """
 
 import re
+import io
+import base64
 import pathlib
+from PIL import Image
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 GAS = ROOT / "gas"
 ORIGIN = "https://mobeauchoho.org"
+
+# Quiz images are displayed small, so downscale before inlining to keep the
+# self-contained GAS HTML light. Tune these if quality/size needs change.
+IMG_MAX_SIDE = 1000
+IMG_QUALITY = 80
 
 
 def read(name: str) -> str:
@@ -37,11 +45,35 @@ def extract_main(html: str) -> str:
 
 def absolutize_assets(text: str) -> str:
     """Rewrite root-relative asset paths to absolute GAS-safe URLs."""
-    # images referenced as "/images/foo.jpg" in image-data.js
-    text = text.replace('"/images/', f'"{ORIGIN}/images/')
     # videos referenced as src="videos/foo.mp4" in index.html
     text = text.replace('src="videos/', f'src="{ORIGIN}/videos/')
     return text
+
+
+def image_data_uri(filename: str) -> str:
+    """Downscale a quiz image and return it as a base64 JPEG data URI.
+
+    The Apps Script iframe sandbox blocks cross-origin image requests, so the
+    GAS build embeds every image directly instead of hotlinking the site.
+    """
+    img = Image.open(ROOT / "images" / filename).convert("RGB")
+    w, h = img.size
+    scale = min(1.0, IMG_MAX_SIDE / max(w, h))
+    if scale < 1.0:
+        img = img.resize((round(w * scale), round(h * scale)), Image.LANCZOS)
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=IMG_QUALITY, optimize=True)
+    b64 = base64.b64encode(buf.getvalue()).decode("ascii")
+    return "data:image/jpeg;base64," + b64
+
+
+def inline_images(image_js: str) -> str:
+    """Replace each `url: "/images/foo.jpg"` with an embedded data URI."""
+    return re.sub(
+        r'url: "/images/([^"]+)"',
+        lambda m: 'url: "' + image_data_uri(m.group(1)) + '"',
+        image_js,
+    )
 
 
 # ---------------------------------------------------------------- index page
@@ -49,7 +81,7 @@ def build_index() -> str:
     style = read("styles.css") + "\n" + read("image-styles.css")
     body = absolutize_assets(extract_main(read("index.html")))
 
-    image_js = absolutize_assets(read("image-data.js"))
+    image_js = inline_images(read("image-data.js"))
     quiz_js = read("quiz.js")
 
     # Swap the fetch-based telemetry for the google.script.run proxy.
