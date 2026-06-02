@@ -419,26 +419,36 @@ function renderResults() {
     const item = document.createElement("li");
     item.className = "breakdown-item " + (right ? "right" : "wrong");
 
+    const pickClass = right ? "pick-right" : "pick-wrong";
+    const aClass = `pair-side ${aLabel === "AI" ? "is-ai" : "is-human"}${userPick === "A" ? " picked " + pickClass : ""}`;
+    const bClass = `pair-side ${bLabel === "AI" ? "is-ai" : "is-human"}${userPick === "B" ? " picked " + pickClass : ""}`;
+    const badge = `<span class="pick-badge">${right ? "✓ Your pick" : "✗ Your pick"}</span>`;
+    const aiTag = `<span class="ans-tag">The AI one</span>`;
+
     item.innerHTML = `
       <div class="breakdown-head">
         <span class="mark">${right ? "✓" : "✗"}</span>
         <span class="qnum">Q${qIdx + 1}</span>
         <span class="qgenre">${pair.genre}</span>
+        <span class="head-result">${right ? "Correct" : "Incorrect"}</span>
       </div>
       <div class="pair-grid">
-        <div class="pair-side ${aLabel === "AI" ? "is-ai" : "is-human"} ${userPick === "A" ? "picked" : ""}">
+        <div class="${aClass}">
+          <div class="side-tags">${aLabel === "AI" ? aiTag : ""}${userPick === "A" ? badge : ""}</div>
           <div class="side-label">Passage A — <strong>${aLabel}</strong></div>
           <div class="side-text ${pair.isPoetry ? "poetry" : ""}"></div>
           <div class="side-attr">${aData.attribution}</div>
         </div>
-        <div class="pair-side ${bLabel === "AI" ? "is-ai" : "is-human"} ${userPick === "B" ? "picked" : ""}">
+        <div class="${bClass}">
+          <div class="side-tags">${bLabel === "AI" ? aiTag : ""}${userPick === "B" ? badge : ""}</div>
           <div class="side-label">Passage B — <strong>${bLabel}</strong></div>
           <div class="side-text ${pair.isPoetry ? "poetry" : ""}"></div>
           <div class="side-attr">${bData.attribution}</div>
         </div>
       </div>
       <div class="breakdown-meta">
-        <strong>You picked:</strong> Passage ${userPick} (${userPick === "A" ? aLabel : bLabel})
+        <strong>You picked:</strong> Passage ${userPick} (${userPick === "A" ? aLabel : bLabel}) —
+        ${right ? "the AI passage. Correct!" : "the human passage. The AI one is highlighted above."}
       </div>
     `;
     const sideTexts = item.querySelectorAll(".side-text");

@@ -13,11 +13,13 @@
   --line-strong: #14110d;
   --card: #fbfaf6;
 
-  /* correctness stays monochrome — meaning carried by ✓/✗ glyphs + fill */
-  --right: #14110d;
-  --right-bg: #fbfaf6;
-  --wrong: #8a8377;
-  --wrong-bg: #ece8df;
+  /* score page uses color to flag correct (green) vs incorrect (red) */
+  --correct: #15803d;
+  --correct-strong: #1c9d4e;
+  --correct-bg: #e9f6ee;
+  --incorrect: #b3261e;
+  --incorrect-strong: #d23b34;
+  --incorrect-bg: #fbeae8;
 
   --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
   --font-body: "Source Serif 4", Georgia, serif;
@@ -315,14 +317,14 @@ h2 { font-size: clamp(2rem, 5vw, 3.25rem); }
 }
 .breakdown-item {
   border: 1px solid var(--line);
-  border-left: 5px solid var(--line);
+  border-left: 6px solid var(--line);
   border-radius: var(--radius-lg);
   padding: 24px;
   margin-bottom: 22px;
   background: var(--surface);
 }
-.breakdown-item.right { border-left-color: var(--ink); }
-.breakdown-item.wrong { border-left-color: var(--muted); }
+.breakdown-item.right { border-left-color: var(--correct-strong); }
+.breakdown-item.wrong { border-left-color: var(--incorrect-strong); }
 
 .breakdown-head {
   display: flex;
@@ -335,37 +337,71 @@ h2 { font-size: clamp(2rem, 5vw, 3.25rem); }
   letter-spacing: 0.16em;
 }
 .mark {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
   width: 26px;
   height: 26px;
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  border: 1.5px solid currentColor;
+  color: #fff;
 }
-.right .mark { color: var(--ink); }
-.wrong .mark { color: var(--muted); }
+.right .mark { background: var(--correct-strong); }
+.wrong .mark { background: var(--incorrect-strong); }
 .qnum { font-weight: 700; color: var(--ink); }
+.head-result {
+  margin-left: auto;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.right .head-result { color: var(--correct); }
+.wrong .head-result { color: var(--incorrect); }
 
 .pair-side {
-  border: 1px solid var(--line);
+  position: relative;
+  border: 1.5px solid var(--line);
   border-radius: var(--radius);
   padding: 18px;
   background: var(--surface);
 }
+/* the AI passage is the correct answer → highlight green */
 .pair-side.is-ai {
-  background: var(--ink);
-  color: var(--accent-ink);
-  border-color: var(--ink);
+  background: var(--correct-bg);
+  border-color: var(--correct-strong);
 }
-.pair-side.is-ai .side-label,
-.pair-side.is-ai .side-attr { color: rgba(244, 241, 234, 0.65); }
-.pair-side.is-ai .side-label strong { color: var(--accent-ink); }
+.pair-side.is-ai .side-label strong { color: var(--correct); }
 .pair-side.is-human { background: var(--surface); }
-.pair-side.picked { outline: 2.5px solid var(--ink); outline-offset: 3px; }
-.pair-side.is-ai.picked { outline-color: var(--accent-ink); }
+
+/* the user's chosen passage */
+.pair-side.picked { outline-offset: 3px; }
+.pair-side.pick-right { outline: 3px solid var(--correct-strong); }
+.pair-side.pick-wrong { outline: 3px solid var(--incorrect-strong); }
+
+.side-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.ans-tag, .pick-badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 99px;
+}
+.ans-tag {
+  background: var(--correct-strong);
+  color: #fff;
+}
+.pick-right .pick-badge { background: var(--correct-strong); color: #fff; }
+.pick-wrong .pick-badge { background: var(--incorrect-strong); color: #fff; }
 
 .side-label {
   font-size: 0.7rem;
