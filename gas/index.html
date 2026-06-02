@@ -225,6 +225,20 @@ h2 {
 .video-gate:disabled:hover { opacity: 1; }
 .video-gate:disabled:active { transform: none; }
 
+/* completion screen success check */
+.completion-check {
+  width: 84px;
+  height: 84px;
+  margin: 0 auto 24px;
+  border-radius: 50%;
+  background: #06a77d;
+  color: #fff;
+  font-size: 46px;
+  line-height: 84px;
+  text-align: center;
+  font-weight: 700;
+}
+
 /* ---------- quiz ---------- */
 .progress {
   height: 6px;
@@ -866,6 +880,15 @@ h2 {
       <button id="thankyou-done" class="primary" style="position:relative;z-index:1;">Submit and complete</button>
     </section>
 
+    <!-- completion -->
+    <section id="completion" class="screen welcome">
+      <div class="completion-check" aria-hidden="true">✓</div>
+      <h2>All done!</h2>
+      <p class="tagline">Your responses were successfully submitted.</p>
+      <p class="consent-fine">Thank you for participating. You may now close this tab.</p>
+      <button id="completion-restart" class="primary">Take the quiz again</button>
+    </section>
+
   </main>
   <script>
 // Section 2 data — AI image vs human-drawn art.
@@ -1484,8 +1507,9 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("thankyou-done").addEventListener("click", () => {
     const tv = document.getElementById("thankyou-player");
     if (tv) { tv.pause(); tv.currentTime = 0; }
-    show("title");
+    show("completion");
   });
+  document.getElementById("completion-restart").addEventListener("click", () => show("title"));
 });
 
   </script>

@@ -551,6 +551,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("thankyou-done").addEventListener("click", () => {
     const tv = document.getElementById("thankyou-player");
     if (tv) { tv.pause(); tv.currentTime = 0; }
-    show("title");
+    show("completion");
   });
+  document.getElementById("completion-restart").addEventListener("click", () => show("title"));
 });
