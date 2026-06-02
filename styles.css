@@ -200,6 +200,24 @@ h2 {
 .primary:hover { opacity: 0.92; }
 .primary:active { transform: translateY(1px); }
 
+/* video gate — the Continue button fills as the clip plays and unlocks at 80% */
+.video-gate {
+  --fill: 0%;
+  background: linear-gradient(
+    to right,
+    var(--accent) var(--fill),
+    rgba(0, 0, 0, 0.45) var(--fill)
+  );
+  transition: background 0.12s linear;
+}
+.video-gate:disabled {
+  opacity: 1; /* show the fill instead of the dimmed default disabled look */
+  color: var(--accent-ink);
+  cursor: not-allowed;
+}
+.video-gate:disabled:hover { opacity: 1; }
+.video-gate:disabled:active { transform: none; }
+
 /* ---------- quiz ---------- */
 .progress {
   height: 6px;
@@ -520,8 +538,7 @@ h2 {
   transition: color 0.1s;
 }
 
-.star-rating label:hover,
-.star-rating input:checked ~ label {
+.star-rating label:hover {
   color: #f59e0b;
 }
 
@@ -568,3 +585,4 @@ h2 {
   .breakdown-item { padding: 16px; }
   .breakdown-head { flex-wrap: wrap; }
 }
+

@@ -28,6 +28,15 @@
       </div>
     </section>
 
+    <!-- pre-demographics video -->
+    <section id="predemo-video" class="screen welcome">
+      <video id="predemo-video-player" controls playsinline
+             style="max-width:720px;width:100%;border-radius:14px;display:block;margin:0 auto 24px;">
+        <source src="videos/predemo.mp4" type="video/mp4" />
+      </video>
+      <button id="predemo-video-continue" class="primary">Continue</button>
+    </section>
+
     <!-- demographics -->
     <section id="demographics" class="screen welcome">
       <h2>A few quick questions</h2>
@@ -89,6 +98,15 @@
       </form>
     </section>
 
+    <!-- mid-quiz video (between text and image rounds) -->
+    <section id="midquiz-video" class="screen welcome">
+      <video id="midquiz-video-player" controls playsinline
+             style="max-width:720px;width:100%;border-radius:14px;display:block;margin:0 auto 24px;">
+        <source src="videos/midquiz.mp4" type="video/mp4" />
+      </video>
+      <button id="midquiz-video-continue" class="primary">Continue</button>
+    </section>
+
     <!-- quiz -->
     <section id="quiz" class="screen">
       <div class="progress"><div id="progress-bar" class="progress-bar"></div></div>
@@ -111,16 +129,13 @@
       </div>
     </section>
 
-    <!-- video placeholder -->
+    <!-- video before results -->
     <section id="video" class="screen welcome">
-      <h2>Before your results</h2>
-      <p class="tagline">Watch this short clip, then continue.</p>
-      <div class="video-placeholder">
-        <div class="video-icon">▶</div>
-        <div class="video-label">Video placeholder</div>
-        <div class="video-sub">Drop a video file or embed here</div>
-      </div>
-      <button id="video-continue" class="primary">Continue to results</button>
+      <video id="video-player" controls playsinline
+             style="max-width:720px;width:100%;border-radius:14px;display:block;margin:0 auto 24px;">
+        <source src="videos/prequiz.mp4" type="video/mp4" />
+      </video>
+      <button id="video-continue" class="primary">Continue</button>
     </section>
 
     <!-- results -->
@@ -128,9 +143,17 @@
       <h2 id="score"></h2>
       <ul id="breakdown" class="breakdown"></ul>
       <div class="results-actions">
-        <button id="feedback-btn" class="primary">Share your feedback</button>
-        <button id="retake-btn" class="secondary">Skip &amp; retake</button>
+        <button id="feedback-btn" class="primary">Continue</button>
       </div>
+    </section>
+
+    <!-- outro video -->
+    <section id="outro-video" class="screen welcome">
+      <video id="outro-video-player" controls playsinline
+             style="max-width:720px;width:100%;border-radius:14px;display:block;margin:0 auto 24px;">
+        <source src="videos/outro.mp4" type="video/mp4" />
+      </video>
+      <button id="outro-video-continue" class="primary">Continue</button>
     </section>
 
     <!-- post-survey -->
@@ -178,11 +201,47 @@
           </div>
         </fieldset>
 
+        <fieldset class="survey-field">
+          <legend>Has your idea about AI changed?</legend>
+          <div class="survey-options">
+            <label><input type="radio" name="ai_changed" value="yes" required /> Yes</label>
+            <label><input type="radio" name="ai_changed" value="somewhat" /> Somewhat</label>
+            <label><input type="radio" name="ai_changed" value="no" /> No</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="survey-field">
+          <legend>Did you learn more about AI?</legend>
+          <div class="survey-options">
+            <label><input type="radio" name="learned_ai" value="yes" required /> Yes</label>
+            <label><input type="radio" name="learned_ai" value="somewhat" /> Somewhat</label>
+            <label><input type="radio" name="learned_ai" value="no" /> No</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="survey-field">
+          <legend>How effective/easy was our course?</legend>
+          <div class="survey-options">
+            <label><input type="radio" name="course_effectiveness" value="very" required /> Very effective</label>
+            <label><input type="radio" name="course_effectiveness" value="somewhat" /> Somewhat effective</label>
+            <label><input type="radio" name="course_effectiveness" value="neutral" /> Neutral</label>
+            <label><input type="radio" name="course_effectiveness" value="not" /> Not effective</label>
+          </div>
+        </fieldset>
+
         <div class="survey-actions">
           <button type="submit" id="survey-submit" class="primary" disabled>Submit feedback</button>
-          <button type="button" id="survey-skip" class="secondary">Skip</button>
         </div>
       </form>
+    </section>
+
+    <!-- thank you screen -->
+    <section id="thankyou" class="screen welcome">
+      <video id="thankyou-player" controls playsinline
+             style="max-width:720px;width:100%;border-radius:14px;display:block;margin:0 auto 24px;position:relative;z-index:1;">
+        <source src="videos/thankyou.mp4" type="video/mp4" />
+      </video>
+      <button id="thankyou-done" class="primary" style="position:relative;z-index:1;">Continue</button>
     </section>
 
   </main>

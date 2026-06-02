@@ -235,7 +235,13 @@ function answer(pick) {
   state.answers.push(pick); // "A" or "B"
   state.index++;
   if (state.index >= state.order.length) {
-    show("video"); // submission happens after post-survey
+    show("video");
+    const preVid = document.getElementById("video-player");
+    if (preVid) preVid.play().catch(() => {});
+  } else if (state.index === PAIRS.length) {
+    show("midquiz-video");
+    const vid = document.getElementById("midquiz-video-player");
+    if (vid) vid.play().catch(() => {});
   } else {
     renderQuestion();
   }
@@ -286,7 +292,9 @@ function updateDemoStartButton() {
 
 function onConsentAgree() {
   state.sessionId = makeUuid();
-  show("demographics");
+  show("predemo-video");
+  const vid = document.getElementById("predemo-video-player");
+  if (vid) vid.play().catch(() => {});
 }
 
 function onDemographicsSubmit(e) {
@@ -318,15 +326,19 @@ function readSurvey() {
     return el ? el.value : "";
   };
   return {
-    learned:    field("learned"),
-    useful:     field("useful"),
-    rating:     field("rating"),
-    confidence: field("confidence")
+    learned:              field("learned"),
+    useful:               field("useful"),
+    rating:               field("rating"),
+    confidence:           field("confidence"),
+    ai_changed:           field("ai_changed"),
+    learned_ai:           field("learned_ai"),
+    course_effectiveness: field("course_effectiveness")
   };
 }
 
 function surveyComplete(s) {
-  return s.learned && s.useful && s.rating && s.confidence;
+  return s.learned && s.useful && s.rating && s.confidence &&
+         s.ai_changed && s.learned_ai && s.course_effectiveness;
 }
 
 function updateSurveySubmitButton() {
@@ -436,8 +448,50 @@ function renderResults() {
   });
 }
 
+// Each video screen's Continue button fills as the clip plays and only
+// becomes clickable once the viewer reaches 80% of the video.
+const VIDEO_GATES = [
+  ["predemo-video-player", "predemo-video-continue"],
+  ["midquiz-video-player", "midquiz-video-continue"],
+  ["video-player",         "video-continue"],
+  ["outro-video-player",   "outro-video-continue"],
+  ["thankyou-player",      "thankyou-done"],
+];
+
+function setupVideoGate(videoId, btnId) {
+  const video = document.getElementById(videoId);
+  const btn = document.getElementById(btnId);
+  if (!video || !btn) return;
+
+  const UNLOCK_AT = 0.8; // fraction of duration that fully fills + unlocks
+  btn.classList.add("video-gate");
+
+  const apply = () => {
+    const d = video.duration;
+    let pct = 0;
+    if (d && isFinite(d) && d > 0) {
+      pct = Math.min(1, video.currentTime / (d * UNLOCK_AT));
+    }
+    btn.style.setProperty("--fill", (pct * 100) + "%");
+    btn.disabled = pct < 1;
+  };
+
+  const unlock = () => {
+    btn.style.setProperty("--fill", "100%");
+    btn.disabled = false;
+  };
+
+  video.addEventListener("loadedmetadata", apply);
+  video.addEventListener("timeupdate", apply);
+  video.addEventListener("ended", unlock);
+  video.addEventListener("error", unlock); // never strand the user if it fails to load
+  apply(); // lock immediately on init
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const agreeBtn = document.getElementById("consent-agree");
+
+  VIDEO_GATES.forEach(([v, b]) => setupVideoGate(v, b));
 
   document.getElementById("start-btn").addEventListener("click", showConsent);
   agreeBtn.addEventListener("click", onConsentAgree);
@@ -448,7 +502,20 @@ document.addEventListener("DOMContentLoaded", () => {
     demoForm.addEventListener("submit", onDemographicsSubmit);
     demoForm.addEventListener("change", updateDemoStartButton);
   }
+  document.getElementById("predemo-video-continue").addEventListener("click", () => {
+    const vid = document.getElementById("predemo-video-player");
+    if (vid) { vid.pause(); vid.currentTime = 0; }
+    show("demographics");
+  });
+  document.getElementById("midquiz-video-continue").addEventListener("click", () => {
+    const vid = document.getElementById("midquiz-video-player");
+    if (vid) { vid.pause(); vid.currentTime = 0; }
+    renderQuestion();
+    show("quiz");
+  });
   document.getElementById("video-continue").addEventListener("click", () => {
+    const pv = document.getElementById("video-player");
+    if (pv) { pv.pause(); pv.currentTime = 0; }
     renderResults();
     show("results");
   });
@@ -456,11 +523,15 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("pick-b").addEventListener("click", () => answer("B"));
 
   // results screen
-  document.getElementById("feedback-btn").addEventListener("click", () => show("post-survey"));
-  document.getElementById("retake-btn").addEventListener("click", () => {
-    state.postSurvey = null;
-    submitQuizData();
-    show("title");
+  document.getElementById("feedback-btn").addEventListener("click", () => {
+    show("outro-video");
+    const vid = document.getElementById("outro-video-player");
+    if (vid) vid.play().catch(() => {});
+  });
+  document.getElementById("outro-video-continue").addEventListener("click", () => {
+    const vid = document.getElementById("outro-video-player");
+    if (vid) { vid.pause(); vid.currentTime = 0; }
+    show("post-survey");
   });
 
   // post-survey
@@ -473,11 +544,13 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     state.postSurvey = readSurvey();
     submitQuizData();
-    show("title");
+    show("thankyou");
+    const tv = document.getElementById("thankyou-player");
+    if (tv) tv.play().catch(() => {});
   });
-  document.getElementById("survey-skip").addEventListener("click", () => {
-    state.postSurvey = null;
-    submitQuizData();
+  document.getElementById("thankyou-done").addEventListener("click", () => {
+    const tv = document.getElementById("thankyou-player");
+    if (tv) { tv.pause(); tv.currentTime = 0; }
     show("title");
   });
 });
