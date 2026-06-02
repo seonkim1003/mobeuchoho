@@ -51,6 +51,27 @@ const GENDERS = new Set([
 ]);
 const AI_FAMILIARITY = new Set(["never", "sometimes", "daily", "prefer_not"]);
 
+// ---- Post-survey allowed values (all optional / nullable) ----
+const SURVEY_YSN = new Set(["yes", "somewhat", "no"]);
+const SURVEY_USEFUL = new Set(["very", "somewhat", "not"]);
+const SURVEY_CONFIDENCE = new Set([
+  "much_more",
+  "somewhat_more",
+  "same",
+  "less",
+]);
+const SURVEY_COURSE = new Set(["very", "somewhat", "neutral", "not"]);
+
+interface PostSurvey {
+  learned: string | null;
+  useful: string | null;
+  rating: number | null;
+  confidence: string | null;
+  ai_changed: string | null;
+  learned_ai: string | null;
+  course_effectiveness: string | null;
+}
+
 interface Demographics {
   age_band: string | null;
   education: string | null;
@@ -76,6 +97,7 @@ interface Payload {
   turnstile_token: string;
   demographics: Demographics;
   answers: Answer[];
+  post_survey: PostSurvey;
 }
 
 export const onRequestPost: PagesFunction<Env> = async (ctx) => {
@@ -117,8 +139,10 @@ export const onRequestPost: PagesFunction<Env> = async (ctx) => {
   const sessionStmt = env.DB.prepare(
     `INSERT OR IGNORE INTO sessions
      (id, started_at, finished_at, ua_hint, country, created_at,
-      age_band, education, native_english, gender, ai_familiarity)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      age_band, education, native_english, gender, ai_familiarity,
+      learned, useful, rating, confidence, ai_changed, learned_ai,
+      course_effectiveness)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).bind(
     payload.session_id,
     payload.started_at,
@@ -131,6 +155,13 @@ export const onRequestPost: PagesFunction<Env> = async (ctx) => {
     payload.demographics.native_english,
     payload.demographics.gender,
     payload.demographics.ai_familiarity,
+    payload.post_survey.learned,
+    payload.post_survey.useful,
+    payload.post_survey.rating,
+    payload.post_survey.confidence,
+    payload.post_survey.ai_changed,
+    payload.post_survey.learned_ai,
+    payload.post_survey.course_effectiveness,
   );
 
   const answerStmts = payload.answers.map((a) =>
@@ -267,7 +298,30 @@ function validatePayload(body: unknown): Result<Payload> {
       turnstile_token,
       demographics: demographicsParsed.value,
       answers: validatedAnswers,
+      post_survey: parseSurvey(body.post_survey),
     },
+  };
+}
+
+// Post-survey is best-effort: never reject a submission over it. Any missing
+// or out-of-domain field is stored as NULL rather than failing validation.
+function parseSurvey(raw: unknown): PostSurvey {
+  const obj = isObject(raw) ? raw : {};
+  const pick = (v: unknown, allowed: Set<string>): string | null =>
+    typeof v === "string" && allowed.has(v) ? v : null;
+
+  let rating: number | null = null;
+  const r = Number(obj.rating);
+  if (Number.isInteger(r) && r >= 1 && r <= 5) rating = r;
+
+  return {
+    learned: pick(obj.learned, SURVEY_YSN),
+    useful: pick(obj.useful, SURVEY_USEFUL),
+    rating,
+    confidence: pick(obj.confidence, SURVEY_CONFIDENCE),
+    ai_changed: pick(obj.ai_changed, SURVEY_YSN),
+    learned_ai: pick(obj.learned_ai, SURVEY_YSN),
+    course_effectiveness: pick(obj.course_effectiveness, SURVEY_COURSE),
   };
 }
 

@@ -8,10 +8,11 @@ interface Env {
   CACHE: KVNamespace;
 }
 
-const CACHE_KEY = "stats:v2";
+const CACHE_KEY = "stats:v3";
 const CACHE_TTL_SECONDS = 60;
 
 type DemoBuckets = Record<string, { n: number; accuracy: number | null }>;
+type SurveyBuckets = Record<string, { n: number }>;
 
 interface StatsResponse {
   n_sessions: number;
@@ -24,8 +25,29 @@ interface StatsResponse {
     gender: DemoBuckets;
     ai_familiarity: DemoBuckets;
   };
+  survey: {
+    learned: SurveyBuckets;
+    useful: SurveyBuckets;
+    rating: SurveyBuckets;
+    confidence: SurveyBuckets;
+    ai_changed: SurveyBuckets;
+    learned_ai: SurveyBuckets;
+    course_effectiveness: SurveyBuckets;
+    avg_rating: number | null;
+    n_responses: number;
+  };
   updated_at: number;
 }
+
+const SURVEY_FIELDS = [
+  "learned",
+  "useful",
+  "rating",
+  "confidence",
+  "ai_changed",
+  "learned_ai",
+  "course_effectiveness",
+] as const;
 
 const DEMO_FIELDS = [
   "age_band",
@@ -126,13 +148,60 @@ async function computeStats(db: D1Database): Promise<StatsResponse> {
     ai_familiarity: await aggregateDemographic(db, "ai_familiarity"),
   };
 
+  const survey = {
+    learned: await aggregateSurvey(db, "learned"),
+    useful: await aggregateSurvey(db, "useful"),
+    rating: await aggregateSurvey(db, "rating"),
+    confidence: await aggregateSurvey(db, "confidence"),
+    ai_changed: await aggregateSurvey(db, "ai_changed"),
+    learned_ai: await aggregateSurvey(db, "learned_ai"),
+    course_effectiveness: await aggregateSurvey(db, "course_effectiveness"),
+    avg_rating: null as number | null,
+    n_responses: 0,
+  };
+
+  const ratingAgg = await db
+    .prepare(
+      `SELECT AVG(CAST(rating AS REAL)) AS avg_rating,
+              COUNT(rating)             AS n_responses
+       FROM sessions WHERE rating IS NOT NULL`,
+    )
+    .first<{ avg_rating: number | null; n_responses: number }>();
+  survey.avg_rating =
+    ratingAgg?.avg_rating == null ? null : roundTo(ratingAgg.avg_rating, 2);
+  survey.n_responses = ratingAgg?.n_responses ?? 0;
+
   return {
     n_sessions: overall?.n_sessions ?? 0,
     overall_accuracy: roundTo(overall?.overall_accuracy ?? 0, 4),
     per_genre,
     demographics,
+    survey,
     updated_at: Date.now(),
   };
+}
+
+// Per-survey-question aggregation: count responses per answer value.
+// Sessions that never answered (NULL) are excluded.
+async function aggregateSurvey(
+  db: D1Database,
+  column: (typeof SURVEY_FIELDS)[number],
+): Promise<Record<string, { n: number }>> {
+  const rows = await db
+    .prepare(
+      `SELECT CAST(${column} AS TEXT) AS bucket, COUNT(*) AS n
+       FROM sessions
+       WHERE ${column} IS NOT NULL
+       GROUP BY bucket
+       ORDER BY bucket`,
+    )
+    .all<{ bucket: string; n: number }>();
+
+  const out: Record<string, { n: number }> = {};
+  for (const row of rows.results ?? []) {
+    out[row.bucket] = { n: row.n };
+  }
+  return out;
 }
 
 // Per-demographic aggregation: for each bucket value of the given session

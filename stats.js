@@ -21,6 +21,17 @@ const MOCK_STATS = {
     gender: { "female": { n: 500, accuracy: 0.6 }, "male": { n: 500, accuracy: 0.62 }, "non_binary": { n: 100, accuracy: 0.65 }, "prefer_not": { n: 134, accuracy: 0.55 } },
     ai_familiarity: { "never": { n: 200, accuracy: 0.5 }, "sometimes": { n: 700, accuracy: 0.62 }, "daily": { n: 334, accuracy: 0.68 } }
   },
+  survey: {
+    learned: { yes: { n: 700 }, somewhat: { n: 400 }, no: { n: 134 } },
+    useful: { very: { n: 600 }, somewhat: { n: 500 }, not: { n: 134 } },
+    rating: { "1": { n: 40 }, "2": { n: 80 }, "3": { n: 300 }, "4": { n: 500 }, "5": { n: 314 } },
+    confidence: { much_more: { n: 300 }, somewhat_more: { n: 600 }, same: { n: 300 }, less: { n: 34 } },
+    ai_changed: { yes: { n: 500 }, somewhat: { n: 600 }, no: { n: 134 } },
+    learned_ai: { yes: { n: 800 }, somewhat: { n: 300 }, no: { n: 134 } },
+    course_effectiveness: { very: { n: 700 }, somewhat: { n: 400 }, neutral: { n: 100 }, not: { n: 34 } },
+    avg_rating: 3.85,
+    n_responses: 1234
+  },
   updated_at: Date.now()
 };
 
@@ -81,6 +92,62 @@ const DEMO_META = {
   }
 };
 
+// Display order + human-readable labels for each post-survey question.
+const SURVEY_META = {
+  learned: {
+    title: "Did the quiz teach you something new?",
+    type: "donut",
+    order: ["yes", "somewhat", "no"],
+    labels: { yes: "Yes", somewhat: "Somewhat", no: "No" }
+  },
+  useful: {
+    title: "How useful was the information?",
+    type: "bar",
+    order: ["very", "somewhat", "not"],
+    labels: { very: "Very useful", somewhat: "Somewhat useful", not: "Not useful" }
+  },
+  rating: {
+    title: "Overall rating",
+    type: "bar",
+    order: ["1", "2", "3", "4", "5"],
+    labels: { "1": "1 star", "2": "2 stars", "3": "3 stars", "4": "4 stars", "5": "5 stars" }
+  },
+  confidence: {
+    title: "Confidence spotting AI content",
+    type: "bar",
+    order: ["much_more", "somewhat_more", "same", "less"],
+    labels: {
+      much_more: "Much more confident",
+      somewhat_more: "Somewhat more confident",
+      same: "About the same",
+      less: "Less confident"
+    }
+  },
+  ai_changed: {
+    title: "Has your idea about AI changed?",
+    type: "donut",
+    order: ["yes", "somewhat", "no"],
+    labels: { yes: "Yes", somewhat: "Somewhat", no: "No" }
+  },
+  learned_ai: {
+    title: "Did you learn more about AI?",
+    type: "donut",
+    order: ["yes", "somewhat", "no"],
+    labels: { yes: "Yes", somewhat: "Somewhat", no: "No" }
+  },
+  course_effectiveness: {
+    title: "How effective/easy was the course?",
+    type: "bar",
+    order: ["very", "somewhat", "neutral", "not"],
+    labels: {
+      very: "Very effective",
+      somewhat: "Somewhat effective",
+      neutral: "Neutral",
+      not: "Not effective"
+    }
+  }
+};
+
 // Color palette (cycled per bucket). Keep in sync with --accent in styles.css.
 const DEMO_PALETTE = ["#111111", "#3a86ff", "#06a77d", "#f4a261", "#b5179e", "#8d99ae", "#e63946", "#2a9d8f"];
 
@@ -132,17 +199,37 @@ function renderStats(data) {
   });
 
   renderDemographics(data.demographics || {});
+  renderSurvey(data.survey || {});
 }
 
 // ---------- demographics ----------
 function renderDemographics(demos) {
-  const grid = document.getElementById("demo-grid");
+  renderChartGrid("demo-grid", DEMO_META, demos);
+}
+
+// ---------- post-survey ----------
+function renderSurvey(survey) {
+  const meta = document.getElementById("survey-meta");
+  if (meta) {
+    const n = survey.n_responses || 0;
+    if (n > 0 && survey.avg_rating != null) {
+      meta.textContent = `Based on ${n.toLocaleString()} responses · average rating ${survey.avg_rating} / 5.`;
+    } else {
+      meta.textContent = "";
+    }
+  }
+  renderChartGrid("survey-grid", SURVEY_META, survey);
+}
+
+// Shared renderer for both the demographics and survey chart grids.
+function renderChartGrid(gridId, metaMap, data) {
+  const grid = document.getElementById(gridId);
   if (!grid) return;
   grid.innerHTML = "";
 
-  Object.keys(DEMO_META).forEach(field => {
-    const meta = DEMO_META[field];
-    const buckets = demos[field] || {};
+  Object.keys(metaMap).forEach(field => {
+    const meta = metaMap[field];
+    const buckets = data[field] || {};
     const items = orderBuckets(meta, buckets);
     const total = items.reduce((s, x) => s + (x.n || 0), 0);
 
