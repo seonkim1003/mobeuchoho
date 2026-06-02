@@ -156,6 +156,7 @@ main {
 .video-label { font-size: 18px; font-weight: 600; letter-spacing: 0.5px; }
 .video-sub { font-size: 14px; color: rgba(250,248,244,0.6); }
 
+/* ---------- title ---------- */
 h1 {
   font-family: Georgia, "Times New Roman", serif;
   font-size: 56px;
@@ -206,6 +207,25 @@ h2 {
 .primary:hover { opacity: 0.92; }
 .primary:active { transform: translateY(1px); }
 
+/* video gate — the Continue button fills as the clip plays and unlocks at 80% */
+.video-gate {
+  --fill: 0%;
+  background: linear-gradient(
+    to right,
+    var(--accent) var(--fill),
+    rgba(0, 0, 0, 0.45) var(--fill)
+  );
+  transition: background 0.12s linear;
+}
+.video-gate:disabled {
+  opacity: 1; /* show the fill instead of the dimmed default disabled look */
+  color: var(--accent-ink);
+  cursor: not-allowed;
+}
+.video-gate:disabled:hover { opacity: 1; }
+.video-gate:disabled:active { transform: none; }
+
+/* ---------- quiz ---------- */
 .progress {
   height: 6px;
   background: var(--rule);
@@ -305,6 +325,7 @@ h2 {
   background: var(--accent);
 }
 
+/* ---------- results ---------- */
 .breakdown {
   list-style: none;
   padding: 0;
@@ -368,6 +389,7 @@ h2 {
   font-size: 15px;
 }
 
+/* ---------- demographics ---------- */
 #demographics.active.welcome {
   display: block;
   min-height: calc(100vh - 80px);
@@ -452,26 +474,96 @@ h2 {
   cursor: not-allowed;
 }
 
-/* image styles */
-.passage-image {
-  display: block;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border-radius: 8px;
-  background: #f2f2f2;
+/* ---------- results actions ---------- */
+.results-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
 }
 
-.side-image {
-  display: block;
-  width: 100%;
-  max-height: 220px;
-  object-fit: cover;
-  border-radius: 6px;
+/* ---------- post-survey ---------- */
+#post-survey {
+  max-width: 720px;
+}
+
+.survey-form {
+  max-width: 720px;
+}
+
+.survey-field {
+  border: none;
+  margin: 0 0 28px;
+  padding: 0;
+}
+
+.survey-field legend {
+  font-size: 17px;
+  font-weight: 600;
   margin-bottom: 10px;
-  background: #f2f2f2;
+  padding: 0;
 }
 
+.survey-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.survey-options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  padding: 8px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  cursor: pointer;
+  background: var(--card);
+}
+
+.survey-options label:has(input:checked) {
+  border-color: var(--accent);
+  background: #f5f5f5;
+}
+
+.survey-options input { margin: 0; }
+
+/* star rating */
+.star-rating {
+  display: flex;
+  gap: 4px;
+  font-size: 36px;
+}
+
+.star-rating input { display: none; }
+
+.star-rating label {
+  color: var(--rule);
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.1s;
+}
+
+.star-rating label:hover {
+  color: #f59e0b;
+}
+
+/* fill all stars up to hovered/checked using JS class */
+.star-rating.s1 label:nth-child(-n+2),
+.star-rating.s2 label:nth-child(-n+4),
+.star-rating.s3 label:nth-child(-n+6),
+.star-rating.s4 label:nth-child(-n+8),
+.star-rating.s5 label:nth-child(-n+10) { color: #f59e0b; }
+
+.survey-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+/* ---------- mobile ---------- */
 @media (max-width: 760px) {
   main { padding: 28px 16px 64px; }
 
@@ -499,48 +591,42 @@ h2 {
 
   .breakdown-item { padding: 16px; }
   .breakdown-head { flex-wrap: wrap; }
+}
 
+
+/* Section 2 — image rendering.
+ * Person 2 owns ONLY these selectors. Layout containers
+ * (.pair-grid, .pick-card, .passage without .image, .pair-side,
+ * .breakdown-item) are Person 1's territory and are styled in styles.css.
+ */
+
+/* Image inside a quiz card */
+.passage-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #f2f2f2;
+}
+
+/* Thumbnail inside a results-breakdown side */
+.side-image {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  background: #f2f2f2;
+}
+
+/* Tighten image-card on narrow screens so layout still fits */
+@media (max-width: 760px) {
   .passage-image { aspect-ratio: 16 / 10; }
   .side-image { max-height: 160px; }
-  .survey-options { flex-direction: column; }
-  .survey-options label { width: 100%; }
-  .results-actions { flex-direction: column; }
-  .survey-actions { flex-direction: column; }
 }
 
-/* ---------- results actions ---------- */
-.results-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 8px;
-}
-
-/* ---------- post-survey ---------- */
-#post-survey { max-width: 720px; }
-.survey-form { max-width: 720px; }
-.survey-field { border: none; margin: 0 0 28px; padding: 0; }
-.survey-field legend { font-size: 17px; font-weight: 600; margin-bottom: 10px; padding: 0; }
-.survey-options { display: flex; flex-wrap: wrap; gap: 8px 12px; }
-.survey-options label {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-size: 15px; padding: 8px 12px;
-  border: 1px solid var(--rule); border-radius: 8px;
-  cursor: pointer; background: var(--card);
-}
-.survey-options label:has(input:checked) { border-color: var(--accent); background: #f5f5f5; }
-.survey-options input { margin: 0; }
-
-.star-rating { display: flex; gap: 4px; font-size: 36px; }
-.star-rating input { display: none; }
-.star-rating label { color: var(--rule); cursor: pointer; line-height: 1; transition: color 0.1s; }
-.star-rating.s1 label:nth-child(-n+2),
-.star-rating.s2 label:nth-child(-n+4),
-.star-rating.s3 label:nth-child(-n+6),
-.star-rating.s4 label:nth-child(-n+8),
-.star-rating.s5 label:nth-child(-n+10) { color: #f59e0b; }
-
-.survey-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
   </style>
 </head>
 <body>
@@ -564,6 +650,15 @@ h2 {
       </div>
     </section>
 
+    <!-- pre-demographics video -->
+    <section id="predemo-video" class="screen welcome">
+      <video id="predemo-video-player" controls playsinline
+             style="max-width:1100px;width:100%;border-radius:14px;display:block;margin:0 auto 24px;">
+        <source src="https://mobeauchoho.org/videos/predemo.mp4" type="video/mp4" />
+      </video>
+      <button id="predemo-video-continue" class="primary">Continue</button>
+    </section>
+
     <!-- demographics -->
     <section id="demographics" class="screen welcome">
       <h2>A few quick questions</h2>
@@ -573,11 +668,11 @@ h2 {
           <legend>Age</legend>
           <div class="demo-options">
             <label><input type="radio" name="age_band" value="under_18" required /> Under 18</label>
-            <label><input type="radio" name="age_band" value="18_24" /> 18&ndash;24</label>
-            <label><input type="radio" name="age_band" value="25_34" /> 25&ndash;34</label>
-            <label><input type="radio" name="age_band" value="35_44" /> 35&ndash;44</label>
-            <label><input type="radio" name="age_band" value="45_54" /> 45&ndash;54</label>
-            <label><input type="radio" name="age_band" value="55_64" /> 55&ndash;64</label>
+            <label><input type="radio" name="age_band" value="18_24" /> 18–24</label>
+            <label><input type="radio" name="age_band" value="25_34" /> 25–34</label>
+            <label><input type="radio" name="age_band" value="35_44" /> 35–44</label>
+            <label><input type="radio" name="age_band" value="45_54" /> 45–54</label>
+            <label><input type="radio" name="age_band" value="55_64" /> 55–64</label>
             <label><input type="radio" name="age_band" value="65_plus" /> 65+</label>
             <label><input type="radio" name="age_band" value="prefer_not" /> Prefer not to say</label>
           </div>
@@ -625,6 +720,15 @@ h2 {
       </form>
     </section>
 
+    <!-- mid-quiz video (between text and image rounds) -->
+    <section id="midquiz-video" class="screen welcome">
+      <video id="midquiz-video-player" controls playsinline
+             style="max-width:1100px;width:100%;border-radius:14px;display:block;margin:0 auto 24px;">
+        <source src="https://mobeauchoho.org/videos/midquiz.mp4" type="video/mp4" />
+      </video>
+      <button id="midquiz-video-continue" class="primary">Continue</button>
+    </section>
+
     <!-- quiz -->
     <section id="quiz" class="screen">
       <div class="progress"><div id="progress-bar" class="progress-bar"></div></div>
@@ -647,16 +751,13 @@ h2 {
       </div>
     </section>
 
-    <!-- video placeholder -->
+    <!-- video before results -->
     <section id="video" class="screen welcome">
-      <h2>Before your results</h2>
-      <p class="tagline">Watch this short clip, then continue.</p>
-      <div class="video-placeholder">
-        <div class="video-icon">&#9654;</div>
-        <div class="video-label">Video placeholder</div>
-        <div class="video-sub">Drop a video file or embed here</div>
-      </div>
-      <button id="video-continue" class="primary">Continue to results</button>
+      <video id="video-player" controls playsinline
+             style="max-width:1100px;width:100%;border-radius:14px;display:block;margin:0 auto 24px;">
+        <source src="https://mobeauchoho.org/videos/prequiz.mp4" type="video/mp4" />
+      </video>
+      <button id="video-continue" class="primary">Continue</button>
     </section>
 
     <!-- results -->
@@ -664,9 +765,17 @@ h2 {
       <h2 id="score"></h2>
       <ul id="breakdown" class="breakdown"></ul>
       <div class="results-actions">
-        <button id="feedback-btn" class="primary">Share your feedback</button>
-        <button id="retake-btn" class="secondary">Skip &amp; retake</button>
+        <button id="feedback-btn" class="primary">Continue</button>
       </div>
+    </section>
+
+    <!-- outro video -->
+    <section id="outro-video" class="screen welcome">
+      <video id="outro-video-player" controls playsinline
+             style="max-width:1100px;width:100%;border-radius:14px;display:block;margin:0 auto 24px;">
+        <source src="https://mobeauchoho.org/videos/outro.mp4" type="video/mp4" />
+      </video>
+      <button id="outro-video-continue" class="primary">Continue</button>
     </section>
 
     <!-- post-survey -->
@@ -696,11 +805,11 @@ h2 {
         <fieldset class="survey-field">
           <legend>Overall rating</legend>
           <div class="star-rating">
-            <input type="radio" name="rating" value="1" id="star1" required /><label for="star1" title="1">&#9733;</label>
-            <input type="radio" name="rating" value="2" id="star2" /><label for="star2" title="2">&#9733;</label>
-            <input type="radio" name="rating" value="3" id="star3" /><label for="star3" title="3">&#9733;</label>
-            <input type="radio" name="rating" value="4" id="star4" /><label for="star4" title="4">&#9733;</label>
-            <input type="radio" name="rating" value="5" id="star5" /><label for="star5" title="5">&#9733;</label>
+            <input type="radio" name="rating" value="1" id="star1" required /><label for="star1" title="1">★</label>
+            <input type="radio" name="rating" value="2" id="star2" /><label for="star2" title="2">★</label>
+            <input type="radio" name="rating" value="3" id="star3" /><label for="star3" title="3">★</label>
+            <input type="radio" name="rating" value="4" id="star4" /><label for="star4" title="4">★</label>
+            <input type="radio" name="rating" value="5" id="star5" /><label for="star5" title="5">★</label>
           </div>
         </fieldset>
 
@@ -714,63 +823,146 @@ h2 {
           </div>
         </fieldset>
 
+        <fieldset class="survey-field">
+          <legend>Has your idea about AI changed?</legend>
+          <div class="survey-options">
+            <label><input type="radio" name="ai_changed" value="yes" required /> Yes</label>
+            <label><input type="radio" name="ai_changed" value="somewhat" /> Somewhat</label>
+            <label><input type="radio" name="ai_changed" value="no" /> No</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="survey-field">
+          <legend>Did you learn more about AI?</legend>
+          <div class="survey-options">
+            <label><input type="radio" name="learned_ai" value="yes" required /> Yes</label>
+            <label><input type="radio" name="learned_ai" value="somewhat" /> Somewhat</label>
+            <label><input type="radio" name="learned_ai" value="no" /> No</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="survey-field">
+          <legend>How effective/easy was our course?</legend>
+          <div class="survey-options">
+            <label><input type="radio" name="course_effectiveness" value="very" required /> Very effective</label>
+            <label><input type="radio" name="course_effectiveness" value="somewhat" /> Somewhat effective</label>
+            <label><input type="radio" name="course_effectiveness" value="neutral" /> Neutral</label>
+            <label><input type="radio" name="course_effectiveness" value="not" /> Not effective</label>
+          </div>
+        </fieldset>
+
         <div class="survey-actions">
           <button type="submit" id="survey-submit" class="primary" disabled>Submit feedback</button>
-          <button type="button" id="survey-skip" class="secondary">Skip</button>
         </div>
       </form>
     </section>
 
+    <!-- thank you screen -->
+    <section id="thankyou" class="screen welcome">
+      <video id="thankyou-player" controls playsinline
+             style="max-width:1100px;width:100%;border-radius:14px;display:block;margin:0 auto 24px;position:relative;z-index:1;">
+        <source src="https://mobeauchoho.org/videos/thankyou.mp4" type="video/mp4" />
+      </video>
+      <button id="thankyou-done" class="primary" style="position:relative;z-index:1;">Submit and complete</button>
+    </section>
+
   </main>
   <script>
-// ---------- image data (self-hosted on mobeauchoho.org) ----------
-var IMG = "https://mobeauchoho.org/images/";
+// Section 2 data — AI image vs human-drawn art.
+// Read by quiz.js at startQuiz() via `typeof IMAGE_PAIRS` guard.
+//
+// Images are self-hosted under /images/ (committed to the repo).
+// The GAS version uses absolute URLs via the BASE_URL prefix below.
+
 const IMAGE_PAIRS = [
   {
     type: "image",
     genre: "Portrait",
-    human: { url: IMG + "portrait-human.jpg",  attribution: "Johannes Vermeer, Girl with a Pearl Earring (c. 1665)" },
-    ai:    { url: IMG + "portrait-ai.jpg",     attribution: "AI-generated portrait — Wikimedia Commons" }
+    human: {
+      url: "https://mobeauchoho.org/images/portrait-human.jpg",
+      attribution: "Johannes Vermeer, Girl with a Pearl Earring (c. 1665)"
+    },
+    ai: {
+      url: "https://mobeauchoho.org/images/portrait-ai.jpg",
+      attribution: "AI-generated portrait — Wikimedia Commons"
+    }
   },
   {
     type: "image",
     genre: "Landscape",
-    human: { url: IMG + "landscape-human.jpg", attribution: "Katsushika Hokusai, The Great Wave off Kanagawa (c. 1831)" },
-    ai:    { url: IMG + "landscape-ai.jpg",    attribution: "AI-generated landscape (Adobe Firefly) — Wikimedia Commons" }
+    human: {
+      url: "https://mobeauchoho.org/images/landscape-human.jpg",
+      attribution: "Katsushika Hokusai, The Great Wave off Kanagawa (c. 1831)"
+    },
+    ai: {
+      url: "https://mobeauchoho.org/images/landscape-ai.jpg",
+      attribution: "AI-generated landscape (Adobe Firefly) — Wikimedia Commons"
+    }
   },
   {
     type: "image",
     genre: "Still life",
-    human: { url: IMG + "stilllife-human.jpg", attribution: "Vincent van Gogh, Sunflowers (1888)" },
-    ai:    { url: IMG + "stilllife-ai.png",    attribution: "AI-generated still life — Wikimedia Commons" }
+    human: {
+      url: "https://mobeauchoho.org/images/stilllife-human.jpg",
+      attribution: "Vincent van Gogh, Sunflowers (1888)"
+    },
+    ai: {
+      url: "https://mobeauchoho.org/images/stilllife-ai.png",
+      attribution: "AI-generated still life — Wikimedia Commons"
+    }
   },
   {
     type: "image",
     genre: "Surreal scene",
-    human: { url: IMG + "surreal-human.jpg",   attribution: "Hieronymus Bosch, The Garden of Earthly Delights (c. 1500)" },
-    ai:    { url: IMG + "surreal-ai.png",      attribution: "AI-generated surreal scene (DALL·E) — Wikimedia Commons" }
+    human: {
+      url: "https://mobeauchoho.org/images/surreal-human.jpg",
+      attribution: "Hieronymus Bosch, The Garden of Earthly Delights (c. 1500)"
+    },
+    ai: {
+      url: "https://mobeauchoho.org/images/surreal-ai.png",
+      attribution: "AI-generated surreal scene (DALL·E) — Wikimedia Commons"
+    }
   },
   {
     type: "image",
     genre: "Abstract",
-    human: { url: IMG + "abstract-human.jpg",  attribution: "Wassily Kandinsky, Composition 8 (1923)" },
-    ai:    { url: IMG + "abstract-ai.jpg",     attribution: "AI-generated abstract art — Wikimedia Commons" }
+    human: {
+      url: "https://mobeauchoho.org/images/abstract-human.jpg",
+      attribution: "Wassily Kandinsky, Composition 8 (1923)"
+    },
+    ai: {
+      url: "https://mobeauchoho.org/images/abstract-ai.jpg",
+      attribution: "AI-generated abstract art — Wikimedia Commons"
+    }
   }
 ];
 
-// ---------- quiz config ----------
+
+// AI vs Human Text Quiz — side-by-side format
+// 5 pairs (one human + one AI per genre). User picks which side is AI.
+
+// ---------- config ----------
+// Flip MOCK_API to true during local dev when the backend isn't running.
+// When true, /api/submit is faked and /api/stats returns a canned payload.
 const MOCK_API = false;
+const SUBMIT_ENDPOINT = "/api/submit";
+
+// Cloudflare Turnstile site key. Leave empty to skip the widget entirely;
+// in that case the consent "I agree" button is enabled immediately.
+const TURNSTILE_SITE_KEY = "";
 
 const PAIRS = [
   {
     type: "text",
     genre: "Literary fiction",
     human: {
-      text: "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife. However little known the feelings or views of such a man may be on his first entering a neighbourhood, this truth is so well fixed in the minds of the surrounding families, that he is considered as the rightful property of some one or other of their daughters.",
+      text:
+        "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife. However little known the feelings or views of such a man may be on his first entering a neighbourhood, this truth is so well fixed in the minds of the surrounding families, that he is considered as the rightful property of some one or other of their daughters.",
       attribution: "Jane Austen, Pride and Prejudice (1813)"
     },
     ai: {
-      text: "It has long been observed, in the small towns and quiet drawing-rooms of the county, that a young woman of agreeable disposition cannot remain long unobserved when her circumstances are reduced. Such was the case with Miss Whitcombe, whose recent misfortunes had drawn upon her a measure of sympathy from her neighbours, and a measure of curiosity that, in truth, was rather less polite than they were willing to admit.",
+      text:
+        "It has long been observed, in the small towns and quiet drawing-rooms of the county, that a young woman of agreeable disposition cannot remain long unobserved when her circumstances are reduced. Such was the case with Miss Whitcombe, whose recent misfortunes had drawn upon her a measure of sympathy from her neighbours, and a measure of curiosity that, in truth, was rather less polite than they were willing to admit.",
       attribution: "Generated by AI (Claude)"
     }
   },
@@ -778,11 +970,13 @@ const PAIRS = [
     type: "text",
     genre: "Detective fiction",
     human: {
-      text: "In the year 1878 I took my degree of Doctor of Medicine of the University of London, and proceeded to Netley to go through the course prescribed for surgeons in the army. Having completed my studies there, I was duly attached to the Fifth Northumberland Fusiliers as Assistant Surgeon. The regiment was stationed in India at the time, and before I could join it, the second Afghan war had broken out.",
+      text:
+        "In the year 1878 I took my degree of Doctor of Medicine of the University of London, and proceeded to Netley to go through the course prescribed for surgeons in the army. Having completed my studies there, I was duly attached to the Fifth Northumberland Fusiliers as Assistant Surgeon. The regiment was stationed in India at the time, and before I could join it, the second Afghan war had broken out.",
       attribution: "Arthur Conan Doyle, A Study in Scarlet (1887)"
     },
     ai: {
-      text: "In the autumn of 1889 I returned from my service in the colonies and took rooms at a quiet address in Bloomsbury. My health, which had been much weakened by the climate, demanded a period of rest, and I had resolved to occupy myself with little more than reading and the keeping of a modest journal. It was during this interval of forced leisure that I made the acquaintance of the gentleman whose remarkable abilities form the subject of these pages.",
+      text:
+        "In the autumn of 1889 I returned from my service in the colonies and took rooms at a quiet address in Bloomsbury. My health, which had been much weakened by the climate, demanded a period of rest, and I had resolved to occupy myself with little more than reading and the keeping of a modest journal. It was during this interval of forced leisure that I made the acquaintance of the gentleman whose remarkable abilities form the subject of these pages.",
       attribution: "Generated by AI (Claude)"
     }
   },
@@ -790,11 +984,13 @@ const PAIRS = [
     type: "text",
     genre: "Essay / opinion",
     human: {
-      text: "I went to the woods because I wished to live deliberately, to front only the essential facts of life, and see if I could not learn what it had to teach, and not, when I came to die, discover that I had not lived. I did not wish to live what was not life, living is so dear; nor did I wish to practise resignation, unless it was quite necessary.",
+      text:
+        "I went to the woods because I wished to live deliberately, to front only the essential facts of life, and see if I could not learn what it had to teach, and not, when I came to die, discover that I had not lived. I did not wish to live what was not life, living is so dear; nor did I wish to practise resignation, unless it was quite necessary.",
       attribution: "Henry David Thoreau, Walden (1854)"
     },
     ai: {
-      text: "There is, I have come to believe, a certain quiet dignity in choosing one's own pace through the world. We are forever urged to hurry — to produce, to acquire, to be seen producing and acquiring — and yet the deepest satisfactions of a human life seem to reward those who learn, however briefly, to step aside from the current and observe its motion from the bank.",
+      text:
+        "There is, I have come to believe, a certain quiet dignity in choosing one's own pace through the world. We are forever urged to hurry — to produce, to acquire, to be seen producing and acquiring — and yet the deepest satisfactions of a human life seem to reward those who learn, however briefly, to step aside from the current and observe its motion from the bank.",
       attribution: "Generated by AI (Claude)"
     }
   },
@@ -802,11 +998,13 @@ const PAIRS = [
     type: "text",
     genre: "Nature writing",
     human: {
-      text: "The whole landscape showed design, like man's noblest sculptures. How wonderful the power of its beauty! Gazing awe-stricken, I might have left everything for it. Glad, endless work would then be mine tracing the forces that have brought forth its features, its giant domes and pinnacles, its forests and gardens, lakes and meadows, and glorious river cañons.",
+      text:
+        "The whole landscape showed design, like man's noblest sculptures. How wonderful the power of its beauty! Gazing awe-stricken, I might have left everything for it. Glad, endless work would then be mine tracing the forces that have brought forth its features, its giant domes and pinnacles, its forests and gardens, lakes and meadows, and glorious river cañons.",
       attribution: "John Muir, My First Summer in the Sierra (1911)"
     },
     ai: {
-      text: "Standing at the edge of the great valley, one is struck first by the silence, and then, by degrees, by the immense and patient work that silence conceals. Every ridge, every weathered face of granite, every slow-bending pine bears witness to forces unimaginably ancient, working with a steadiness that puts our brief human striving into a humbling and clarifying perspective.",
+      text:
+        "Standing at the edge of the great valley, one is struck first by the silence, and then, by degrees, by the immense and patient work that silence conceals. Every ridge, every weathered face of granite, every slow-bending pine bears witness to forces unimaginably ancient, working with a steadiness that puts our brief human striving into a humbling and clarifying perspective.",
       attribution: "Generated by AI (Claude)"
     }
   },
@@ -815,28 +1013,31 @@ const PAIRS = [
     genre: "Poetry",
     isPoetry: true,
     human: {
-      text: "Hope is the thing with feathers —\nThat perches in the soul —\nAnd sings the tune without the words —\nAnd never stops — at all —\n\nAnd sweetest — in the Gale — is heard —\nAnd sore must be the storm —\nThat could abash the little Bird\nThat kept so many warm —",
+      text:
+        "Hope is the thing with feathers —\nThat perches in the soul —\nAnd sings the tune without the words —\nAnd never stops — at all —\n\nAnd sweetest — in the Gale — is heard —\nAnd sore must be the storm —\nThat could abash the little Bird\nThat kept so many warm —",
       attribution: "Emily Dickinson, c. 1861"
     },
     ai: {
-      text: "Joy is a small and stubborn thing —\nIt nests within the chest —\nAnd sings a song without a name —\nAnd asks for little rest —\n\nIt grows the loudest in the dark —\nWhen silence weighs the most —\nAnd brightest burns the smallest spark\nWhen hope is nearly lost —",
+      text:
+        "Joy is a small and stubborn thing —\nIt nests within the chest —\nAnd sings a song without a name —\nAnd asks for little rest —\n\nIt grows the loudest in the dark —\nWhen silence weighs the most —\nAnd brightest burns the smallest spark\nWhen hope is nearly lost —",
       attribution: "Generated by AI (Claude)"
     }
   }
 ];
 
 // ---------- state ----------
-var state = {
-  order: [],
-  index: 0,
-  layouts: [],
-  answers: [],
-  allItems: [],
-  sessionId: null,
-  startedAt: 0,
-  qStartedAt: 0,
-  telemetry: [],
-  submitted: false,
+const state = {
+  order: [],          // shuffled indices into state.allItems
+  index: 0,           // current pair
+  layouts: [],        // per-question: "A" side is "human" or "ai"
+  answers: [],        // per-question: user's pick — "A" or "B"
+  allItems: [],       // PAIRS concatenated with IMAGE_PAIRS (if present)
+  sessionId: null,    // uuid for this attempt
+  startedAt: 0,       // epoch ms when quiz started
+  qStartedAt: 0,      // performance.now() when current question rendered
+  telemetry: [],      // per-question payload (API contract shape)
+  turnstileToken: "", // captured from Cloudflare Turnstile when configured
+  submitted: false,   // guard against double submission
   demographics: {
     age_band: "",
     education: "",
@@ -844,43 +1045,53 @@ var state = {
     gender: "",
     ai_familiarity: ""
   },
-  postSurvey: null
+  postSurvey: null    // filled when user completes or skips post-survey
 };
 
 // ---------- helpers ----------
 function shuffle(arr) {
-  var a = arr.slice();
-  for (var i = a.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
 }
 
 function show(screenId) {
-  document.querySelectorAll(".screen").forEach(function(el) { el.classList.remove("active"); });
+  document.querySelectorAll(".screen").forEach(el => el.classList.remove("active"));
   document.getElementById(screenId).classList.add("active");
 }
 
-function showConsent() { show("consent"); }
+// ---------- consent ----------
+function showConsent() {
+  show("consent");
+}
 
+// ---------- title ----------
 function startQuiz() {
-  var imagePairs = (typeof IMAGE_PAIRS !== "undefined") ? IMAGE_PAIRS : [];
-  state.allItems = PAIRS.concat(imagePairs);
+  const imagePairs = (typeof IMAGE_PAIRS !== "undefined") ? IMAGE_PAIRS : [];
+  state.allItems = [...PAIRS, ...imagePairs];
 
-  var textIdx  = state.allItems.map(function(p, i) { return p.type === "text"  ? i : -1; }).filter(function(i) { return i >= 0; });
-  var imageIdx = state.allItems.map(function(p, i) { return p.type === "image" ? i : -1; }).filter(function(i) { return i >= 0; });
-  state.order = shuffle(textIdx).concat(shuffle(imageIdx));
+  const textIdx  = state.allItems.map((p, i) => p.type === "text"  ? i : -1).filter(i => i >= 0);
+  const imageIdx = state.allItems.map((p, i) => p.type === "image" ? i : -1).filter(i => i >= 0);
+  state.order = [...shuffle(textIdx), ...shuffle(imageIdx)];
 
   state.index = 0;
   state.answers = [];
-  state.layouts = state.order.map(function() { return Math.random() < 0.5 ? "human" : "ai"; });
+  state.layouts = state.order.map(() => (Math.random() < 0.5 ? "human" : "ai"));
+
   state.telemetry = [];
   state.submitted = false;
   state.postSurvey = null;
 
-  var surveyFormR = document.getElementById("survey-form");
-  if (surveyFormR) { surveyFormR.reset(); updateSurveySubmitButton(); updateStarDisplay(); }
+  // reset survey form for next attempt
+  const surveyForm = document.getElementById("survey-form");
+  if (surveyForm) {
+    surveyForm.reset();
+    updateSurveySubmitButton();
+    updateStarDisplay();
+  }
 
   renderQuestion();
   show("quiz");
@@ -890,19 +1101,21 @@ function makeUuid() {
   if (window.crypto && typeof window.crypto.randomUUID === "function") {
     return window.crypto.randomUUID();
   }
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
-    var r = (Math.random() * 16) | 0;
-    var v = c === "x" ? r : (r & 0x3) | 0x8;
+  // RFC4122-ish fallback for older browsers.
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 }
 
+// ---------- question ----------
 function renderSide(container, data, type, isPoetry) {
   container.className = "passage";
   container.innerHTML = "";
   if (type === "image") {
     container.classList.add("image");
-    var img = document.createElement("img");
+    const img = document.createElement("img");
     img.className = "passage-image";
     img.src = data.url;
     img.alt = "";
@@ -914,39 +1127,41 @@ function renderSide(container, data, type, isPoetry) {
 }
 
 function renderQuestion() {
-  var pair = state.allItems[state.order[state.index]];
-  var aSide = state.layouts[state.index];
+  const pair = state.allItems[state.order[state.index]];
+  const aSide = state.layouts[state.index]; // which source is on side A
 
-  document.getElementById("counter").textContent = (state.index + 1) + " / " + state.allItems.length;
+  document.getElementById("counter").textContent = `${state.index + 1} / ${state.allItems.length}`;
   document.getElementById("genre").textContent = pair.genre;
 
-  var promptEl = document.getElementById("prompt-text");
+  const promptEl = document.getElementById("prompt-text");
   if (promptEl) {
-    promptEl.textContent = pair.type === "image" ? "Which one was made by AI?" : "Which one was written by AI?";
+    promptEl.textContent = pair.type === "image"
+      ? "Which one was made by AI?"
+      : "Which one was written by AI?";
   }
 
-  var aText = document.getElementById("text-a");
-  var bText = document.getElementById("text-b");
-  var poetry = !!pair.isPoetry;
+  const aText = document.getElementById("text-a");
+  const bText = document.getElementById("text-b");
+  const poetry = !!pair.isPoetry;
 
-  var aData = aSide === "human" ? pair.human : pair.ai;
-  var bData = aSide === "human" ? pair.ai : pair.human;
+  const aData = aSide === "human" ? pair.human : pair.ai;
+  const bData = aSide === "human" ? pair.ai : pair.human;
 
   renderSide(aText, aData, pair.type, poetry);
   renderSide(bText, bData, pair.type, poetry);
 
-  var pct = (state.index / state.allItems.length) * 100;
+  const pct = (state.index / state.allItems.length) * 100;
   document.getElementById("progress-bar").style.width = pct + "%";
 
   state.qStartedAt = performance.now();
 }
 
 function answer(pick) {
-  var qIndex = state.index;
-  var pair = state.allItems[state.order[qIndex]];
-  var aSide = state.layouts[qIndex];
-  var aiSide = aSide === "ai" ? "A" : "B";
-  var latencyMs = Math.max(0, Math.round(performance.now() - state.qStartedAt));
+  const qIndex = state.index;
+  const pair = state.allItems[state.order[qIndex]];
+  const aSide = state.layouts[qIndex];
+  const aiSide = aSide === "ai" ? "A" : "B";
+  const latencyMs = Math.max(0, Math.round(performance.now() - state.qStartedAt));
 
   state.telemetry.push({
     q_index: qIndex,
@@ -957,59 +1172,74 @@ function answer(pick) {
     latency_ms: latencyMs
   });
 
-  state.answers.push(pick);
+  state.answers.push(pick); // "A" or "B"
   state.index++;
   if (state.index >= state.order.length) {
-    show("video"); // submission happens after post-survey
+    show("video");
+    const preVid = document.getElementById("video-player");
+    if (preVid) preVid.play().catch(() => {});
+  } else if (state.index === PAIRS.length) {
+    show("midquiz-video");
+    const vid = document.getElementById("midquiz-video-player");
+    if (vid) vid.play().catch(() => {});
   } else {
     renderQuestion();
   }
 }
 
+// ---------- submit ----------
 function detectUserAgentHint() {
-  var ua = (navigator.userAgent || "").toLowerCase();
-  var isMobile = /android|iphone|ipad|ipod|mobile/.test(ua) || window.innerWidth < 760;
+  const ua = (navigator.userAgent || "").toLowerCase();
+  const isMobile = /android|iphone|ipad|ipod|mobile/.test(ua) || window.innerWidth < 760;
   return isMobile ? "mobile" : "desktop";
 }
 
-var DEMO_FIELDS = ["age_band", "education", "native_english", "gender", "ai_familiarity"];
+const DEMO_FIELDS = [
+  "age_band",
+  "education",
+  "native_english",
+  "gender",
+  "ai_familiarity"
+];
 
 function readDemographics() {
-  var out = {};
-  DEMO_FIELDS.forEach(function(field) {
-    var el = document.querySelector('input[name="' + field + '"]:checked');
+  const out = {};
+  for (const field of DEMO_FIELDS) {
+    const el = document.querySelector(`input[name="${field}"]:checked`);
     out[field] = el ? el.value : "";
-  });
+  }
   return out;
 }
 
 function demographicsComplete(demo) {
-  return DEMO_FIELDS.every(function(f) { return demo[f] !== ""; });
+  return DEMO_FIELDS.every(f => demo[f] !== "");
 }
 
 function demographicsForApi(demo) {
-  var out = {};
-  DEMO_FIELDS.forEach(function(field) {
-    var v = demo[field];
-    out[field] = (v === "prefer_not" || v === "") ? null : v;
-  });
+  const out = {};
+  for (const field of DEMO_FIELDS) {
+    const v = demo[field];
+    out[field] = v === "prefer_not" || v === "" ? null : v;
+  }
   return out;
 }
 
 function updateDemoStartButton() {
-  var btn = document.getElementById("demo-start");
+  const btn = document.getElementById("demo-start");
   if (!btn) return;
   btn.disabled = !demographicsComplete(readDemographics());
 }
 
 function onConsentAgree() {
   state.sessionId = makeUuid();
-  show("demographics");
+  show("predemo-video");
+  const vid = document.getElementById("predemo-video-player");
+  if (vid) vid.play().catch(() => {});
 }
 
 function onDemographicsSubmit(e) {
   e.preventDefault();
-  var demo = readDemographics();
+  const demo = readDemographics();
   if (!demographicsComplete(demo)) return;
   state.demographics = demo;
   state.startedAt = Date.now();
@@ -1022,7 +1252,7 @@ function buildSubmitPayload() {
     started_at: state.startedAt,
     finished_at: Date.now(),
     user_agent_hint: detectUserAgentHint(),
-    turnstile_token: "",
+    turnstile_token: state.turnstileToken,
     demographics: demographicsForApi(state.demographics),
     answers: state.telemetry,
     post_survey: state.postSurvey
@@ -1031,30 +1261,43 @@ function buildSubmitPayload() {
 
 // ---------- post-survey ----------
 function readSurvey() {
-  var field = function(name) {
-    var el = document.querySelector('input[name="' + name + '"]:checked');
+  const field = name => {
+    const el = document.querySelector(`input[name="${name}"]:checked`);
     return el ? el.value : "";
   };
-  return { learned: field("learned"), useful: field("useful"), rating: field("rating"), confidence: field("confidence") };
+  return {
+    learned:              field("learned"),
+    useful:               field("useful"),
+    rating:               field("rating"),
+    confidence:           field("confidence"),
+    ai_changed:           field("ai_changed"),
+    learned_ai:           field("learned_ai"),
+    course_effectiveness: field("course_effectiveness")
+  };
 }
-function surveyComplete(s) { return s.learned && s.useful && s.rating && s.confidence; }
+
+function surveyComplete(s) {
+  return s.learned && s.useful && s.rating && s.confidence &&
+         s.ai_changed && s.learned_ai && s.course_effectiveness;
+}
+
 function updateSurveySubmitButton() {
-  var btn = document.getElementById("survey-submit");
+  const btn = document.getElementById("survey-submit");
   if (btn) btn.disabled = !surveyComplete(readSurvey());
 }
+
 function updateStarDisplay() {
-  var checked = document.querySelector('input[name="rating"]:checked');
-  var group = document.querySelector(".star-rating");
+  const checked = document.querySelector('input[name="rating"]:checked');
+  const group = document.querySelector(".star-rating");
   if (!group) return;
   group.className = "star-rating" + (checked ? " s" + checked.value : "");
 }
 
-// GAS version: proxied through google.script.run to avoid CORS
 function submitQuizData() {
   if (state.submitted) return;
   state.submitted = true;
 
-  var payload = buildSubmitPayload();
+  const payload = buildSubmitPayload();
 
   try {
     google.script.run
@@ -1066,10 +1309,11 @@ function submitQuizData() {
   }
 }
 
+// ---------- results ----------
 function fillSideText(sideTextEl, data, type) {
   sideTextEl.innerHTML = "";
   if (type === "image") {
-    var img = document.createElement("img");
+    const img = document.createElement("img");
     img.className = "side-image";
     img.src = data.url;
     img.alt = "";
@@ -1080,99 +1324,170 @@ function fillSideText(sideTextEl, data, type) {
 }
 
 function renderResults() {
-  var correct = 0;
-  state.order.forEach(function(pIdx, qIdx) {
-    var aSide = state.layouts[qIdx];
-    var aiSide = aSide === "ai" ? "A" : "B";
+  let correct = 0;
+  state.order.forEach((pIdx, qIdx) => {
+    const aSide = state.layouts[qIdx];
+    const aiSide = aSide === "ai" ? "A" : "B";
     if (state.answers[qIdx] === aiSide) correct++;
   });
 
   document.getElementById("score").textContent =
-    "You got " + correct + " / " + state.allItems.length + " correct.";
+    `You got ${correct} / ${state.allItems.length} correct.`;
 
-  var list = document.getElementById("breakdown");
+  const list = document.getElementById("breakdown");
   list.innerHTML = "";
 
-  state.order.forEach(function(pIdx, qIdx) {
-    var pair = state.allItems[pIdx];
-    var aSide = state.layouts[qIdx];
-    var aiSide = aSide === "ai" ? "A" : "B";
-    var userPick = state.answers[qIdx];
-    var right = userPick === aiSide;
+  state.order.forEach((pIdx, qIdx) => {
+    const pair = state.allItems[pIdx];
+    const aSide = state.layouts[qIdx];
+    const aiSide = aSide === "ai" ? "A" : "B";
+    const userPick = state.answers[qIdx];
+    const right = userPick === aiSide;
 
-    var aData = aSide === "human" ? pair.human : pair.ai;
-    var bData = aSide === "human" ? pair.ai : pair.human;
-    var aLabel = aSide === "human" ? "Human" : "AI";
-    var bLabel = aSide === "human" ? "AI" : "Human";
+    const aData = aSide === "human" ? pair.human : pair.ai;
+    const bData = aSide === "human" ? pair.ai : pair.human;
+    const aLabel = aSide === "human" ? "Human" : "AI";
+    const bLabel = aSide === "human" ? "AI" : "Human";
 
-    var item = document.createElement("li");
+    const item = document.createElement("li");
     item.className = "breakdown-item " + (right ? "right" : "wrong");
 
-    item.innerHTML =
-      '<div class="breakdown-head">' +
-        '<span class="mark">' + (right ? "✓" : "✗") + "</span>" +
-        '<span class="qnum">Q' + (qIdx + 1) + "</span>" +
-        '<span class="qgenre">' + pair.genre + "</span>" +
-      "</div>" +
-      '<div class="pair-grid">' +
-        '<div class="pair-side ' + (aLabel === "AI" ? "is-ai" : "is-human") + " " + (userPick === "A" ? "picked" : "") + '">' +
-          '<div class="side-label">Passage A &mdash; <strong>' + aLabel + "</strong></div>" +
-          '<div class="side-text ' + (pair.isPoetry ? "poetry" : "") + '"></div>' +
-          '<div class="side-attr">' + aData.attribution + "</div>" +
-        "</div>" +
-        '<div class="pair-side ' + (bLabel === "AI" ? "is-ai" : "is-human") + " " + (userPick === "B" ? "picked" : "") + '">' +
-          '<div class="side-label">Passage B &mdash; <strong>' + bLabel + "</strong></div>" +
-          '<div class="side-text ' + (pair.isPoetry ? "poetry" : "") + '"></div>' +
-          '<div class="side-attr">' + bData.attribution + "</div>" +
-        "</div>" +
-      "</div>" +
-      '<div class="breakdown-meta"><strong>You picked:</strong> Passage ' + userPick + " (" + (userPick === "A" ? aLabel : bLabel) + ")</div>";
-
-    var sideTexts = item.querySelectorAll(".side-text");
+    item.innerHTML = `
+      <div class="breakdown-head">
+        <span class="mark">${right ? "✓" : "✗"}</span>
+        <span class="qnum">Q${qIdx + 1}</span>
+        <span class="qgenre">${pair.genre}</span>
+      </div>
+      <div class="pair-grid">
+        <div class="pair-side ${aLabel === "AI" ? "is-ai" : "is-human"} ${userPick === "A" ? "picked" : ""}">
+          <div class="side-label">Passage A — <strong>${aLabel}</strong></div>
+          <div class="side-text ${pair.isPoetry ? "poetry" : ""}"></div>
+          <div class="side-attr">${aData.attribution}</div>
+        </div>
+        <div class="pair-side ${bLabel === "AI" ? "is-ai" : "is-human"} ${userPick === "B" ? "picked" : ""}">
+          <div class="side-label">Passage B — <strong>${bLabel}</strong></div>
+          <div class="side-text ${pair.isPoetry ? "poetry" : ""}"></div>
+          <div class="side-attr">${bData.attribution}</div>
+        </div>
+      </div>
+      <div class="breakdown-meta">
+        <strong>You picked:</strong> Passage ${userPick} (${userPick === "A" ? aLabel : bLabel})
+      </div>
+    `;
+    const sideTexts = item.querySelectorAll(".side-text");
     fillSideText(sideTexts[0], aData, pair.type);
     fillSideText(sideTexts[1], bData, pair.type);
     list.appendChild(item);
   });
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-  document.getElementById("start-btn").addEventListener("click", showConsent);
-  document.getElementById("consent-agree").addEventListener("click", onConsentAgree);
-  document.getElementById("consent-decline").addEventListener("click", function() { show("title"); });
+// Each video screen's Continue button fills as the clip plays and only
+// becomes clickable once the viewer reaches 80% of the video.
+const VIDEO_GATES = [
+  ["predemo-video-player", "predemo-video-continue"],
+  ["midquiz-video-player", "midquiz-video-continue"],
+  ["video-player",         "video-continue"],
+  ["outro-video-player",   "outro-video-continue"],
+  ["thankyou-player",      "thankyou-done"],
+];
 
-  var demoForm = document.getElementById("demo-form");
+function setupVideoGate(videoId, btnId) {
+  const video = document.getElementById(videoId);
+  const btn = document.getElementById(btnId);
+  if (!video || !btn) return;
+
+  const UNLOCK_AT = 0.8; // fraction of duration that fully fills + unlocks
+  btn.classList.add("video-gate");
+
+  const apply = () => {
+    const d = video.duration;
+    let pct = 0;
+    if (d && isFinite(d) && d > 0) {
+      pct = Math.min(1, video.currentTime / (d * UNLOCK_AT));
+    }
+    btn.style.setProperty("--fill", (pct * 100) + "%");
+    btn.disabled = pct < 1;
+  };
+
+  const unlock = () => {
+    btn.style.setProperty("--fill", "100%");
+    btn.disabled = false;
+  };
+
+  video.addEventListener("loadedmetadata", apply);
+  video.addEventListener("timeupdate", apply);
+  video.addEventListener("ended", unlock);
+  video.addEventListener("error", unlock); // never strand the user if it fails to load
+  apply(); // lock immediately on init
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const agreeBtn = document.getElementById("consent-agree");
+
+  VIDEO_GATES.forEach(([v, b]) => setupVideoGate(v, b));
+
+  document.getElementById("start-btn").addEventListener("click", showConsent);
+  agreeBtn.addEventListener("click", onConsentAgree);
+  document.getElementById("consent-decline").addEventListener("click", () => show("title"));
+
+  const demoForm = document.getElementById("demo-form");
   if (demoForm) {
     demoForm.addEventListener("submit", onDemographicsSubmit);
     demoForm.addEventListener("change", updateDemoStartButton);
   }
-  document.getElementById("video-continue").addEventListener("click", function() {
+  document.getElementById("predemo-video-continue").addEventListener("click", () => {
+    const vid = document.getElementById("predemo-video-player");
+    if (vid) { vid.pause(); vid.currentTime = 0; }
+    show("demographics");
+  });
+  document.getElementById("midquiz-video-continue").addEventListener("click", () => {
+    const vid = document.getElementById("midquiz-video-player");
+    if (vid) { vid.pause(); vid.currentTime = 0; }
+    renderQuestion();
+    show("quiz");
+  });
+  document.getElementById("video-continue").addEventListener("click", () => {
+    const pv = document.getElementById("video-player");
+    if (pv) { pv.pause(); pv.currentTime = 0; }
     renderResults();
     show("results");
   });
-  document.getElementById("pick-a").addEventListener("click", function() { answer("A"); });
-  document.getElementById("pick-b").addEventListener("click", function() { answer("B"); });
+  document.getElementById("pick-a").addEventListener("click", () => answer("A"));
+  document.getElementById("pick-b").addEventListener("click", () => answer("B"));
 
-  document.getElementById("feedback-btn").addEventListener("click", function() { show("post-survey"); });
-  document.getElementById("retake-btn").addEventListener("click", function() {
-    state.postSurvey = null;
-    submitQuizData();
-    show("title");
+  // results screen
+  document.getElementById("feedback-btn").addEventListener("click", () => {
+    show("outro-video");
+    const vid = document.getElementById("outro-video-player");
+    if (vid) vid.play().catch(() => {});
+  });
+  document.getElementById("outro-video-continue").addEventListener("click", () => {
+    const vid = document.getElementById("outro-video-player");
+    if (vid) { vid.pause(); vid.currentTime = 0; }
+    show("post-survey");
   });
 
-  var surveyForm = document.getElementById("survey-form");
-  surveyForm.addEventListener("change", function() { updateSurveySubmitButton(); updateStarDisplay(); });
-  surveyForm.addEventListener("submit", function(e) {
+  // post-survey
+  const surveyForm = document.getElementById("survey-form");
+  surveyForm.addEventListener("change", () => {
+    updateSurveySubmitButton();
+    updateStarDisplay();
+  });
+  surveyForm.addEventListener("submit", e => {
     e.preventDefault();
     state.postSurvey = readSurvey();
     submitQuizData();
-    show("title");
+    show("thankyou");
+    const tv = document.getElementById("thankyou-player");
+    if (tv) tv.play().catch(() => {});
   });
-  document.getElementById("survey-skip").addEventListener("click", function() {
-    state.postSurvey = null;
-    submitQuizData();
+  document.getElementById("thankyou-done").addEventListener("click", () => {
+    const tv = document.getElementById("thankyou-player");
+    if (tv) { tv.pause(); tv.currentTime = 0; }
     show("title");
   });
 });
+
   </script>
 </body>
 </html>
