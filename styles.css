@@ -218,20 +218,6 @@ h2 {
 .video-gate:disabled:hover { opacity: 1; }
 .video-gate:disabled:active { transform: none; }
 
-/* completion screen success check */
-.completion-check {
-  width: 84px;
-  height: 84px;
-  margin: 0 auto 24px;
-  border-radius: 50%;
-  background: #06a77d;
-  color: #fff;
-  font-size: 46px;
-  line-height: 84px;
-  text-align: center;
-  font-weight: 700;
-}
-
 /* ---------- quiz ---------- */
 .progress {
   height: 6px;
