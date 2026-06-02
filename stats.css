@@ -21,11 +21,11 @@
   padding: 32px;
   text-align: center;
   color: var(--muted);
-  border: 1px dashed var(--rule);
-  border-radius: 14px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-lg);
   margin-bottom: 32px;
 }
-.stats-error { color: var(--wrong); border-color: rgba(179, 38, 30, 0.35); }
+.stats-error { color: var(--ink); border-color: var(--ink); }
 
 .stats-summary {
   display: grid;
@@ -34,22 +34,23 @@
   margin-bottom: 32px;
 }
 .stat-card {
-  border: 1px solid var(--rule);
-  border-radius: 14px;
-  padding: 20px 22px;
-  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 24px 26px;
+  background: var(--surface);
 }
 .stat-label {
   text-transform: uppercase;
-  letter-spacing: 1.5px;
-  font-size: 13px;
+  letter-spacing: 0.16em;
+  font-size: 0.74rem;
   color: var(--muted);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 .stat-value {
-  font-family: Georgia, serif;
-  font-size: 40px;
-  line-height: 1.1;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.4rem, 5vw, 3.4rem);
+  line-height: 1.05;
 }
 
 .stat-genres {
@@ -81,10 +82,11 @@
   font-weight: 600;
   color: var(--ink);
 }
+.genre-name { font-family: var(--font-mono); font-size: 0.95rem; letter-spacing: 0.01em; }
 .genre-bar {
-  height: 10px;
-  background: var(--rule);
-  border-radius: 6px;
+  height: 8px;
+  background: var(--line);
+  border-radius: 99px;
   overflow: hidden;
 }
 .genre-bar-fill {
@@ -106,14 +108,20 @@
 }
 .stats-link {
   display: inline-block;
-  padding: 14px 28px;
-  border-radius: 8px;
-  background: var(--accent);
+  padding: 18px 40px;
+  border-radius: var(--radius);
+  background: var(--ink);
   color: var(--accent-ink);
+  border: 1.5px solid var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
   font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   text-decoration: none;
+  transition: background 0.18s var(--ease);
 }
-.stats-link:hover { opacity: 0.92; }
+.stats-link:hover { background: var(--ink-2); }
 
 /* ---------- demographics ---------- */
 .section-sub {
@@ -130,16 +138,18 @@
 }
 
 .demo-card {
-  border: 1px solid var(--rule);
-  border-radius: 14px;
-  padding: 20px 22px;
-  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 24px 26px;
+  background: var(--surface);
 }
 
 .demo-title {
-  font-size: 18px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.3rem;
   margin: 0 0 2px;
-  letter-spacing: -0.2px;
+  letter-spacing: -0.01em;
 }
 
 .demo-total {
@@ -195,9 +205,9 @@
 }
 
 .demo-bar-track {
-  height: 10px;
-  background: var(--rule);
-  border-radius: 6px;
+  height: 8px;
+  background: var(--line);
+  border-radius: 99px;
   overflow: hidden;
 }
 
@@ -223,7 +233,8 @@
 }
 
 .demo-donut-center {
-  font-family: Georgia, serif;
+  font-family: var(--font-display);
+  font-weight: 700;
   font-size: 22px;
   fill: var(--ink);
 }

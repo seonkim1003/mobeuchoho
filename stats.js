@@ -148,8 +148,8 @@ const SURVEY_META = {
   }
 };
 
-// Color palette (cycled per bucket). Keep in sync with --accent in styles.css.
-const DEMO_PALETTE = ["#111111", "#3a86ff", "#06a77d", "#f4a261", "#b5179e", "#8d99ae", "#e63946", "#2a9d8f"];
+// Monochrome palette (cycled per bucket) — grayscale tones, labels carry meaning.
+const DEMO_PALETTE = ["#14110d", "#403a32", "#615a4e", "#837b6c", "#a39a89", "#c2b9a6", "#15110d", "#544d42"];
 
 function formatPct(x) {
   if (typeof x !== "number" || !isFinite(x)) return "—";

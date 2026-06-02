@@ -11,7 +11,7 @@
   aspect-ratio: 4 / 3;
   object-fit: cover;
   border-radius: 8px;
-  background: #f2f2f2;
+  background: var(--line);
 }
 
 /* Thumbnail inside a results-breakdown side */
@@ -22,7 +22,7 @@
   object-fit: cover;
   border-radius: 6px;
   margin-bottom: 10px;
-  background: #f2f2f2;
+  background: var(--line);
 }
 
 /* Tighten image-card on narrow screens so layout still fits */
