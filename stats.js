@@ -148,8 +148,17 @@ const SURVEY_META = {
   }
 };
 
-// Monochrome palette (cycled per bucket) — grayscale tones, labels carry meaning.
-const DEMO_PALETTE = ["#14110d", "#403a32", "#615a4e", "#837b6c", "#a39a89", "#c2b9a6", "#15110d", "#544d42"];
+// Colorful palette (cycled per bucket) — vibrant, high-contrast hues.
+const DEMO_PALETTE = ["#6366f1", "#06b6d4", "#f59e0b", "#ec4899", "#10b981", "#8b5cf6", "#ef4444", "#3b82f6"];
+
+// Color an accuracy value so it's readable at a glance: red (low) → amber → green (high).
+function accuracyColor(acc) {
+  if (typeof acc !== "number" || !isFinite(acc)) return "var(--muted)";
+  if (acc >= 0.7) return "#15803d";
+  if (acc >= 0.55) return "#16a34a";
+  if (acc >= 0.4) return "#d97706";
+  return "#b3261e";
+}
 
 function formatPct(x) {
   if (typeof x !== "number" || !isFinite(x)) return "—";
@@ -168,7 +177,9 @@ function formatTimestamp(ms) {
 function renderStats(data) {
   document.getElementById("stat-sessions").textContent =
     typeof data.n_sessions === "number" ? data.n_sessions.toLocaleString() : "—";
-  document.getElementById("stat-accuracy").textContent = formatPct(data.overall_accuracy);
+  const accEl = document.getElementById("stat-accuracy");
+  accEl.textContent = formatPct(data.overall_accuracy);
+  accEl.style.color = accuracyColor(data.overall_accuracy);
   document.getElementById("stat-updated").textContent = formatTimestamp(data.updated_at);
 
   const list = document.getElementById("stat-genres");
@@ -191,10 +202,13 @@ function renderStats(data) {
       <div class="genre-bar"><div class="genre-bar-fill"></div></div>
     `;
     li.querySelector(".genre-name").textContent = name;
-    li.querySelector(".genre-acc").textContent = formatPct(row.accuracy);
+    const accEl = li.querySelector(".genre-acc");
+    accEl.textContent = formatPct(row.accuracy);
+    accEl.style.color = accuracyColor(row.accuracy);
     li.querySelector(".genre-n").textContent = "";
-    li.querySelector(".genre-bar-fill").style.width =
-      Math.max(0, Math.min(1, pct)) * 100 + "%";
+    const fillEl = li.querySelector(".genre-bar-fill");
+    fillEl.style.width = Math.max(0, Math.min(1, pct)) * 100 + "%";
+    fillEl.style.background = accuracyColor(row.accuracy);
     list.appendChild(li);
   });
 
@@ -306,10 +320,12 @@ function buildBarChart(items, total) {
     const stats = buildEl("span", { className: "demo-bar-stats" });
     stats.appendChild(buildEl("span", { className: "demo-bar-n", text: `${item.n.toLocaleString()} (${(pct * 100).toFixed(0)}%)` }));
     if (item.accuracy != null) {
-      stats.appendChild(buildEl("span", {
+      const accSpan = buildEl("span", {
         className: "demo-bar-acc",
         text: `${(item.accuracy * 100).toFixed(0)}% acc`
-      }));
+      });
+      accSpan.style.color = accuracyColor(item.accuracy);
+      stats.appendChild(accSpan);
     }
     head.appendChild(stats);
     row.appendChild(head);
@@ -347,7 +363,7 @@ function buildDonut(items, total) {
   svg.appendChild(svgEl("circle", {
     cx, cy, r: radius,
     fill: "none",
-    stroke: "var(--rule)",
+    stroke: "var(--line)",
     "stroke-width": stroke
   }));
 
@@ -391,10 +407,12 @@ function buildDonut(items, total) {
     const meta = buildEl("span", { className: "demo-legend-meta" });
     meta.appendChild(buildEl("span", { className: "demo-legend-n", text: `${item.n.toLocaleString()} (${(pct * 100).toFixed(0)}%)` }));
     if (item.accuracy != null) {
-      meta.appendChild(buildEl("span", {
+      const accSpan = buildEl("span", {
         className: "demo-legend-acc",
         text: `${(item.accuracy * 100).toFixed(0)}% acc`
-      }));
+      });
+      accSpan.style.color = accuracyColor(item.accuracy);
+      meta.appendChild(accSpan);
     }
     text.appendChild(meta);
     li.appendChild(text);
